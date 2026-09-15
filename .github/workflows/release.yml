@@ -24,8 +24,14 @@ jobs:
 
       - name: Install Android build-tools & NDK
         run: |
-          yes | sdkmanager --licenses >/dev/null
-          sdkmanager "build-tools;${{ env.BUILD_TOOLS_VERSION }}" "ndk;${{ env.NDK_VERSION }}"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "Using sdkmanager: $SDKMANAGER"
+          "$SDKMANAGER" --version
+          yes | "$SDKMANAGER" --licenses >/dev/null
+          "$SDKMANAGER" \
+            "build-tools;${{ env.BUILD_TOOLS_VERSION }}" \
+            "ndk;${{ env.NDK_VERSION }}"
 
       - name: Decode keystore
         run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload-keystore.jks"
