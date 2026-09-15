@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=pdoc
+Comment=psdk's documention app
+Exec=pdoc
+Icon=ir.psdkjoon.pdoc
+Terminal=false
+Categories=Utility;

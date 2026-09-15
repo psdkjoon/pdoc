@@ -1,0 +1,115 @@
+name: Build & Release
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: "3.47.3"
+  BUILD_TOOLS_VERSION: "37.0.0"
+  NDK_VERSION: "28.2.13676358"
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - name: Install Android build-tools & NDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+          sdkmanager "build-tools;${{ env.BUILD_TOOLS_VERSION }}" "ndk;${{ env.NDK_VERSION }}"
+
+      - name: Decode keystore
+        run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload-keystore.jks"
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+
+      - name: Write key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=$ANDROID_KEYSTORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=$RUNNER_TEMP/upload-keystore.jks
+          EOF
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+
+      - run: flutter pub get
+
+      - name: Build split-per-ABI release APKs
+        run: flutter build apk --release --split-per-abi
+
+      - name: Strip, zipalign & sign
+        run: ./scripts/strip.sh
+        env:
+          APK_OUTPUT_DIR: build/app/outputs/flutter-apk
+          BUILD_TOOLS_DIR: ${{ env.ANDROID_HOME }}/build-tools/${{ env.BUILD_TOOLS_VERSION }}
+          STRIP_TOOL: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip
+          KEYSTORE_PATH: ${{ runner.temp }}/upload-keystore.jks
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-signed-apks
+          path: build/app/outputs/flutter-apk/*-stripped-signed.apk
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux desktop & AppImage build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build libgtk-3-dev imagemagick
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+
+      - run: flutter config --enable-linux-desktop
+      - run: flutter pub get
+      - run: flutter build linux --release
+
+      - name: Build AppImage
+        run: ./scripts/appimage.sh
+        env:
+          BUNDLE_DIR: build/linux/x64/release/bundle
+          OUTPUT_DIR: ${{ github.workspace }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: "*.AppImage"
+
+  release:
+    needs: [android, linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest build
+          make_latest: true
+          files: |
+            artifacts/android-signed-apks/*.apk
+            artifacts/linux-appimage/*.AppImage
