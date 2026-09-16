@@ -4,7 +4,7 @@ import 'package:pdoc/markdown/markdown_inline_text.dart';
 import 'package:pdoc/src/theme.dart';
 
 class MarkdownLinkCard extends StatefulWidget {
-  final String heading;
+  final List<MarkdownInlineSpan> headingSpans;
   final List<MarkdownInlineSpan> bodySpans;
   final VoidCallback onTap;
   final double headingFontSize;
@@ -12,7 +12,7 @@ class MarkdownLinkCard extends StatefulWidget {
 
   const MarkdownLinkCard({
     super.key,
-    required this.heading,
+    required this.headingSpans,
     required this.bodySpans,
     required this.onTap,
     this.headingFontSize = 17,
@@ -50,9 +50,9 @@ class _MarkdownLinkCardState extends State<MarkdownLinkCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                widget.heading,
-                style: TextStyle(
+              MarkdownInlineText(
+                spans: widget.headingSpans,
+                baseStyle: TextStyle(
                   fontSize: widget.headingFontSize,
                   fontWeight: FontWeight.w700,
                   color: docSurfaces.heading,

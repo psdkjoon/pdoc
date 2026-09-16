@@ -23,6 +23,7 @@ class MarkdownBlock {
   final int startNumber;
   final List<List<String>>? tableRows;
   final List<MarkdownInlineSpan>? inlineSpans;
+  final List<MarkdownInlineSpan>? headingSpans;
   final double spacingAfter;
 
   MarkdownBlock._({
@@ -34,6 +35,7 @@ class MarkdownBlock {
     this.startNumber = 1,
     this.tableRows,
     this.inlineSpans,
+    this.headingSpans,
     this.spacingAfter = 24,
   });
 
@@ -83,5 +85,6 @@ class MarkdownBlock {
         text: heading,
         lang: href,
         inlineSpans: MarkdownInlineParser.parse(body),
+        headingSpans: MarkdownInlineParser.parse(heading),
       );
 }

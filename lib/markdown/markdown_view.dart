@@ -97,7 +97,7 @@ class MarkdownView extends StatelessWidget {
         return MarkdownImageBlock(alt: block.text, src: block.lang ?? '');
       case MarkdownBlockType.linkCard:
         return MarkdownLinkCard(
-          heading: block.text,
+          headingSpans: block.headingSpans!,
           bodySpans: block.inlineSpans!,
           onTap: () => onLinkTap?.call(block.lang ?? ''),
           headingFontSize: 17 * scale,

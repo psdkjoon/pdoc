@@ -5,11 +5,39 @@ class MarkdownInlineSpan {
   final String text;
   final String? href;
 
-  MarkdownInlineSpan(this.type, this.text, {this.href});
+  final bool bold;
+  final bool italic;
+  final bool strike;
+
+  const MarkdownInlineSpan(
+    this.type,
+    this.text, {
+    this.href,
+    this.bold = false,
+    this.italic = false,
+    this.strike = false,
+  });
+
+  MarkdownInlineSpan _withExtraEmphasis({
+    bool bold = false,
+    bool italic = false,
+    bool strike = false,
+  }) {
+    return MarkdownInlineSpan(
+      type,
+      text,
+      href: href,
+      bold: this.bold || bold,
+      italic: this.italic || italic,
+      strike: this.strike || strike,
+    );
+  }
 }
 
 class MarkdownInlineParser {
-  static List<MarkdownInlineSpan> parse(String text) {
+  static List<MarkdownInlineSpan> parse(String text) => _parse(text);
+
+  static List<MarkdownInlineSpan> _parse(String text) {
     final spans = <MarkdownInlineSpan>[];
     var i = 0;
     final buffer = StringBuffer();
@@ -21,6 +49,23 @@ class MarkdownInlineParser {
         );
         buffer.clear();
       }
+    }
+
+    List<MarkdownInlineSpan> emphasize(
+      String inner, {
+      bool bold = false,
+      bool italic = false,
+      bool strike = false,
+    }) {
+      return _parse(inner)
+          .map(
+            (span) => span._withExtraEmphasis(
+              bold: bold,
+              italic: italic,
+              strike: strike,
+            ),
+          )
+          .toList();
     }
 
     while (i < text.length) {
@@ -50,11 +95,8 @@ class MarkdownInlineParser {
         final end = text.indexOf(marker, i + 3);
         if (end != -1) {
           flush();
-          spans.add(
-            MarkdownInlineSpan(
-              MarkdownInlineType.boldItalic,
-              text.substring(i + 3, end),
-            ),
+          spans.addAll(
+            emphasize(text.substring(i + 3, end), bold: true, italic: true),
           );
           i = end + 3;
           continue;
@@ -65,12 +107,7 @@ class MarkdownInlineParser {
         final end = text.indexOf('~~', i + 2);
         if (end != -1) {
           flush();
-          spans.add(
-            MarkdownInlineSpan(
-              MarkdownInlineType.strike,
-              text.substring(i + 2, end),
-            ),
-          );
+          spans.addAll(emphasize(text.substring(i + 2, end), strike: true));
           i = end + 2;
           continue;
         }
@@ -81,12 +118,7 @@ class MarkdownInlineParser {
         final end = text.indexOf(marker, i + 2);
         if (end != -1) {
           flush();
-          spans.add(
-            MarkdownInlineSpan(
-              MarkdownInlineType.bold,
-              text.substring(i + 2, end),
-            ),
-          );
+          spans.addAll(emphasize(text.substring(i + 2, end), bold: true));
           i = end + 2;
           continue;
         }
@@ -120,12 +152,7 @@ class MarkdownInlineParser {
             RegExp(r'\w').hasMatch(text[end + 1]);
         if (end != -1 && end > i + 1 && !followedByWord) {
           flush();
-          spans.add(
-            MarkdownInlineSpan(
-              MarkdownInlineType.italic,
-              text.substring(i + 1, end),
-            ),
-          );
+          spans.addAll(emphasize(text.substring(i + 1, end), italic: true));
           i = end + 1;
           continue;
         }

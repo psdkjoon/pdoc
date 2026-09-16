@@ -5,14 +5,20 @@ import 'package:pdoc/logic/searchbar_controller.dart';
 class DocsCards extends StatelessWidget {
   final Docs docs;
   final void Function(Doc doc) onOpen;
+  final bool isWide;
 
-  const DocsCards({super.key, required this.docs, required this.onOpen});
+  const DocsCards({
+    super.key,
+    required this.docs,
+    required this.onOpen,
+    required this.isWide,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 18.0),
+        padding: const EdgeInsets.symmetric(vertical: 25.0),
         child: ValueListenableBuilder<String>(
           valueListenable: searchBarNotifier,
           builder: (context, query, _) {
@@ -40,7 +46,7 @@ class DocsCards extends StatelessWidget {
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    childAspectRatio: 1.5,
+                    childAspectRatio: isWide ? 1.5 : 2.5,
                   ),
                   itemCount: filtered.length,
                   itemBuilder: (context, index) {

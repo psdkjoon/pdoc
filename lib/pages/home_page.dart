@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdoc/logic/docs_controller.dart';
 import 'package:pdoc/pages/doc_page.dart';
+import 'package:pdoc/src/theme.dart';
 import 'package:pdoc/widgets/app_footer.dart';
 import 'package:pdoc/widgets/background.dart';
 import 'package:pdoc/widgets/cards.dart';
@@ -37,6 +38,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final width = MediaQuery.of(context).size.width;
+    final isWide =
+        MediaQuery.of(context).size.width >= DocColors.wideBreakpoint;
     final horizontalPadding = width >= 900
         ? 100.0
         : (width >= 600 ? 48.0 : 16.0);
@@ -72,6 +75,7 @@ class HomePage extends StatelessWidget {
                             return DocsCards(
                               docs: docs,
                               onOpen: (doc) => _openDoc(context, doc),
+                              isWide: isWide,
                             );
                           },
                         ),

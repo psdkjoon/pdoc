@@ -4,7 +4,7 @@ import 'package:pdoc/pages/doc_page.dart';
 import 'package:pdoc/src/theme.dart';
 import 'package:pdoc/widgets/version_selector.dart';
 
-class DocSidebar extends StatelessWidget {
+class DocSidebar extends StatefulWidget {
   final DocPageArgs args;
   final String currentSection;
   final String currentPage;
@@ -25,30 +25,82 @@ class DocSidebar extends StatelessWidget {
   });
 
   @override
+  State<DocSidebar> createState() => _DocSidebarState();
+}
+
+class _DocSidebarState extends State<DocSidebar> {
+  bool entered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (args.version != '0.0.0') ...[
-            VersionSelector(
-              currentVersion: args.version,
-              versions: docVersions(args.doc),
-              onChanged: onChangeVersion,
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.args.version != '0.0.0') ...[
+                    VersionSelector(
+                      currentVersion: widget.args.version,
+                      versions: docVersions(widget.args.doc),
+                      onChanged: widget.onChangeVersion,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  for (final section in widget.args.sections.entries)
+                    _SidebarSection(
+                      title: section.key,
+                      pages: section.value.keys.toList(),
+                      isOpen: widget.expandedSections.contains(section.key),
+                      currentSection: widget.currentSection,
+                      currentPage: widget.currentPage,
+                      onToggle: () => widget.onToggleSection(section.key),
+                      onSelectPage: widget.onSelectPage,
+                    ),
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
-          ],
-          for (final section in args.sections.entries)
-            _SidebarSection(
-              title: section.key,
-              pages: section.value.keys.toList(),
-              isOpen: expandedSections.contains(section.key),
-              currentSection: currentSection,
-              currentPage: currentPage,
-              onToggle: () => onToggleSection(section.key),
-              onSelectPage: onSelectPage,
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            child: MouseRegion(
+              onEnter: (_) => setState(() => entered = true),
+              onExit: (_) => setState(() => entered = false),
+              cursor: SystemMouseCursors.click,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                transform: Matrix4.translationValues(0, entered ? -2 : 0, 0),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainer,
+                  border: Border.all(
+                    color: entered ? scheme.primary : scheme.outline,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: entered
+                      ? [
+                          BoxShadow(
+                            color: scheme.primary.withValues(alpha: 0.4),
+                            blurRadius: 20,
+                            spreadRadius: 2,
+                          ),
+                        ]
+                      : [],
+                ),
+
+                child: Center(child: Text('Back To Main Menu')),
+              ),
             ),
+          ),
         ],
       ),
     );
@@ -89,13 +141,35 @@ class _SidebarSection extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: scheme.onSurfaceVariant,
-                        letterSpacing: 0.4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isOpen && title == currentSection
+                            ? scheme.surfaceContainerHigh
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(DocColors.sm),
+                        border: Border(
+                          left: BorderSide(
+                            color: isOpen && title == currentSection
+                                ? scheme.primary
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: scheme.onSurfaceVariant,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -104,8 +178,8 @@ class _SidebarSection extends StatelessWidget {
                     duration: const Duration(milliseconds: 150),
                     child: Icon(
                       Icons.expand_more_rounded,
-                      size: 16,
-                      color: scheme.outlineVariant,
+                      size: 24,
+                      color: scheme.primary,
                     ),
                   ),
                 ],
@@ -150,28 +224,31 @@ class _SidebarNavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        margin: const EdgeInsets.only(bottom: 2),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        decoration: BoxDecoration(
-          color: selected ? scheme.surfaceContainerHigh : Colors.transparent,
-          borderRadius: BorderRadius.circular(DocColors.sm),
-          border: Border(
-            left: BorderSide(
-              color: selected ? scheme.primary : Colors.transparent,
-              width: 2,
+    return Padding(
+      padding: const EdgeInsets.only(left: 30),
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          margin: const EdgeInsets.only(bottom: 2),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          decoration: BoxDecoration(
+            color: selected ? scheme.surfaceContainerHigh : Colors.transparent,
+            borderRadius: BorderRadius.circular(DocColors.sm),
+            border: Border(
+              left: BorderSide(
+                color: selected ? scheme.primary : Colors.transparent,
+                width: 2,
+              ),
             ),
           ),
-        ),
-        child: Text(
-          page,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? scheme.primary : scheme.onSurfaceVariant,
+          child: Text(
+            page,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? scheme.primary : scheme.onSurfaceVariant,
+            ),
           ),
         ),
       ),
