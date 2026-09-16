@@ -1,6 +1,6 @@
 name: pdoc
 description: "psdk's documention app, containing both my app and other programming stuff"
-version: 1.0.0
+version: 1.1.1
 repository: https://github.com/psdk/pdoc
 
 environment:
