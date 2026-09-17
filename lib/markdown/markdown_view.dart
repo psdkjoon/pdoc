@@ -70,8 +70,6 @@ class MarkdownView extends StatelessWidget {
       case MarkdownBlockType.list:
         return MarkdownListBlock(
           items: block.listItems!,
-          ordered: block.ordered,
-          startNumber: block.startNumber,
           baseStyle: bodyStyle,
           onLinkTap: onLinkTap,
         );

@@ -149,8 +149,9 @@ ResolvedDocLink? resolveInternalLink(
   }
 
   final last = remaining.last;
-  final stripped = last.replaceFirst(RegExp(r'^\d+-'), '');
-  final targetCandidates = {last, stripped};
+  final lastSlug = slugify(last);
+  final stripped = lastSlug.replaceFirst(RegExp(r'^\d+-'), '');
+  final targetCandidates = {lastSlug, stripped};
   final middle = remaining.sublist(0, remaining.length - 1).toSet();
 
   final matches = <_PageRef>[];

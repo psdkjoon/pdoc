@@ -71,7 +71,6 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
   Widget build(BuildContext context) {
     _disposeRecognizers();
     final scheme = Theme.of(context).colorScheme;
-    final docSurfaces = context.docSurfaces;
     final baseStyle = widget.baseStyle;
 
     return Text.rich(
@@ -84,8 +83,8 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
                 style: _withExtraEmphasis(
                   baseStyle,
                   span,
-                  boldColor: docSurfaces.heading,
-                  strikeColor: docSurfaces.textFaint,
+                  boldColor: scheme.onSurface,
+                  strikeColor: scheme.outline,
                 ),
               );
             case MarkdownInlineType.bold:
@@ -94,10 +93,10 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
                 style: _withExtraEmphasis(
                   baseStyle.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: docSurfaces.heading,
+                    color: scheme.onSurface,
                   ),
                   span,
-                  strikeColor: docSurfaces.textFaint,
+                  strikeColor: scheme.outline,
                 ),
               );
             case MarkdownInlineType.italic:
@@ -106,8 +105,8 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
                 style: _withExtraEmphasis(
                   baseStyle.copyWith(fontStyle: FontStyle.italic),
                   span,
-                  boldColor: docSurfaces.heading,
-                  strikeColor: docSurfaces.textFaint,
+                  boldColor: scheme.onSurface,
+                  strikeColor: scheme.outline,
                 ),
               );
             case MarkdownInlineType.boldItalic:
@@ -117,10 +116,10 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
                   baseStyle.copyWith(
                     fontWeight: FontWeight.w700,
                     fontStyle: FontStyle.italic,
-                    color: docSurfaces.heading,
+                    color: scheme.onSurface,
                   ),
                   span,
-                  strikeColor: docSurfaces.textFaint,
+                  strikeColor: scheme.outline,
                 ),
               );
             case MarkdownInlineType.strike:
@@ -129,23 +128,30 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
                 style: _withExtraEmphasis(
                   baseStyle.copyWith(
                     decoration: TextDecoration.lineThrough,
-                    color: docSurfaces.textFaint,
+                    color: scheme.outline,
                   ),
                   span,
-                  boldColor: docSurfaces.heading,
+                  boldColor: scheme.onSurface,
                 ),
               );
             case MarkdownInlineType.code:
-              return TextSpan(
-                text: span.text,
-                style: _withExtraEmphasis(
-                  baseStyle.copyWith(
-                    fontFamily: DocColors.mono,
-                    fontSize: baseStyle.fontSize! * 0.88,
-                    backgroundColor: docSurfaces.codeBg,
-                    color: scheme.primaryContainer,
+              final codeStyle = _withExtraEmphasis(
+                baseStyle.copyWith(
+                  fontFamily: DocColors.mono,
+                  fontSize: baseStyle.fontSize! * 0.88,
+                  color: scheme.primaryContainer,
+                ),
+                span,
+              );
+              return WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: DocColors.s1),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(DocColors.md),
                   ),
-                  span,
+                  child: Text(span.text, style: codeStyle),
                 ),
               );
             case MarkdownInlineType.link:

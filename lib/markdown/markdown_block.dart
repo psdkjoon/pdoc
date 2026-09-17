@@ -14,13 +14,26 @@ enum MarkdownBlockType {
   linkCard,
 }
 
+class MarkdownListItem {
+  final String text;
+  final int depth;
+  final bool ordered;
+  final int number;
+  final List<MarkdownInlineSpan> inlineSpans;
+
+  MarkdownListItem({
+    required this.text,
+    required this.depth,
+    required this.ordered,
+    required this.number,
+  }) : inlineSpans = MarkdownInlineParser.parse(text);
+}
+
 class MarkdownBlock {
   final MarkdownBlockType type;
   final String text;
   final String? lang;
-  final List<String>? listItems;
-  final bool ordered;
-  final int startNumber;
+  final List<MarkdownListItem>? listItems;
   final List<List<String>>? tableRows;
   final List<MarkdownInlineSpan>? inlineSpans;
   final List<MarkdownInlineSpan>? headingSpans;
@@ -31,8 +44,6 @@ class MarkdownBlock {
     this.text = '',
     this.lang,
     this.listItems,
-    this.ordered = false,
-    this.startNumber = 1,
     this.tableRows,
     this.inlineSpans,
     this.headingSpans,
@@ -56,16 +67,8 @@ class MarkdownBlock {
   factory MarkdownBlock.code(String text, String? lang) =>
       MarkdownBlock._(type: MarkdownBlockType.code, text: text, lang: lang);
 
-  factory MarkdownBlock.list(
-    List<String> items,
-    bool ordered,
-    int startNumber,
-  ) => MarkdownBlock._(
-    type: MarkdownBlockType.list,
-    listItems: items,
-    ordered: ordered,
-    startNumber: startNumber,
-  );
+  factory MarkdownBlock.list(List<MarkdownListItem> items) =>
+      MarkdownBlock._(type: MarkdownBlockType.list, listItems: items);
 
   factory MarkdownBlock.table(List<List<String>> rows) =>
       MarkdownBlock._(type: MarkdownBlockType.table, tableRows: rows);

@@ -51,7 +51,6 @@ class _TitleAndSearchBarState extends State<TitleAndSearchBar> {
                       onChanged: setSearchBarText,
                       controller: searchBarController,
                       maxLines: 1,
-                      autofocus: width >= 600,
                       cursorHeight: 20,
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.search,

@@ -93,7 +93,7 @@ class _DocSearchDialogState extends State<_DocSearchDialog> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Dialog(
-      backgroundColor: context.docSurfaces.cardBg,
+      backgroundColor: scheme.surfaceContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(DocColors.lg),
       ),

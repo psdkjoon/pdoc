@@ -35,7 +35,6 @@ class MarkdownImageBlock extends StatelessWidget {
 
   Widget _fallback(BuildContext context, {bool loading = false}) {
     final scheme = Theme.of(context).colorScheme;
-    final docSurfaces = context.docSurfaces;
     return Container(
       padding: const EdgeInsets.all(DocColors.s4),
       color: scheme.surfaceContainer,
@@ -45,7 +44,7 @@ class MarkdownImageBlock extends StatelessWidget {
         children: [
           Icon(
             loading ? Icons.image_outlined : Icons.broken_image_outlined,
-            color: docSurfaces.textFaint,
+            color: scheme.outline,
             size: 22,
           ),
           if (alt.isNotEmpty) ...[
@@ -55,7 +54,7 @@ class MarkdownImageBlock extends StatelessWidget {
               style: TextStyle(
                 fontFamily: DocColors.mono,
                 fontSize: 12,
-                color: docSurfaces.textFaint,
+                color: scheme.outline,
               ),
             ),
           ],

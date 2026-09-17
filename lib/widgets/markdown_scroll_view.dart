@@ -78,62 +78,73 @@ class MarkdownScrollView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return ScrollConfiguration(
-      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-      child: SingleChildScrollView(
-        controller: controller,
-        padding: EdgeInsets.symmetric(
-          horizontal: isWide ? 48 : 16,
-          vertical: 32,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: DocColors.maxDocWidth),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DocBreadcrumb(args: args, section: currentSection),
-                const SizedBox(height: 12),
-                ValueListenableBuilder<DocFontSize>(
-                  valueListenable: fontSizeNotifier,
-                  builder: (context, fontSize, _) {
-                    final scale =
-                        fontSize.bodyFontSize / MarkdownView.baseFontSize;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          currentPage,
-                          style: TextStyle(
-                            fontSize: 40 * scale,
-                            fontWeight: FontWeight.bold,
-                            color: scheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        MarkdownView(
-                          source:
-                              args.sections[currentSection]?[currentPage] ??
-                              '_Page not found in this version._',
-                          bodyFontSize: fontSize.bodyFontSize,
-                          onLinkTap: (href) => _handleLinkTap(context, href),
-                        ),
-                      ],
-                    );
-                  },
+    return Column(
+      children: [
+        Expanded(
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context)
+                .copyWith(scrollbars: false),
+            child: SingleChildScrollView(
+              controller: controller,
+              padding: EdgeInsets.symmetric(
+                horizontal: isWide ? 48 : 16,
+                vertical: 32,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: DocColors.maxDocWidth,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DocBreadcrumb(args: args, section: currentSection),
+                      const SizedBox(height: 12),
+                      ValueListenableBuilder<DocFontSize>(
+                        valueListenable: fontSizeNotifier,
+                        builder: (context, fontSize, _) {
+                          final scale =
+                              fontSize.bodyFontSize / MarkdownView.baseFontSize;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                currentPage,
+                                style: TextStyle(
+                                  fontSize: 40 * scale,
+                                  fontWeight: FontWeight.bold,
+                                  color: scheme.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              MarkdownView(
+                                source:
+                                    args.sections[currentSection]?[currentPage] ??
+                                    '_Page not found in this version._',
+                                bodyFontSize: fontSize.bodyFontSize,
+                                onLinkTap: (href) =>
+                                    _handleLinkTap(context, href),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      DocPrevNextNav(
+                        pages: flatPages,
+                        current: (currentSection, currentPage),
+                        onSelect: goTo,
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 48),
-                DocPrevNextNav(
-                  pages: flatPages,
-                  current: (currentSection, currentPage),
-                  onSelect: goTo,
-                ),
-                const AppFooter(),
-              ],
+              ),
             ),
           ),
         ),
-      ),
+        const AppFooter(),
+      ],
     );
   }
 }

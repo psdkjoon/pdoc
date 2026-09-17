@@ -30,22 +30,17 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
     });
   }
 
-  Color _tokenColor(
-    SyntaxTokenType type,
-    ColorScheme scheme,
-    DocSurfaces docSurfaces,
-  ) {
+  Color _tokenColor(SyntaxTokenType type, ColorScheme scheme) {
     switch (type) {
       case SyntaxTokenType.keyword:
         return scheme.primary;
       case SyntaxTokenType.string:
         return scheme.secondary;
       case SyntaxTokenType.comment:
-        return docSurfaces.textFaint;
+        return scheme.outline;
       case SyntaxTokenType.number:
         return scheme.tertiary;
       case SyntaxTokenType.type:
-        return docSurfaces.heading;
       case SyntaxTokenType.punctuation:
       case SyntaxTokenType.plain:
         return scheme.onSurface;
@@ -55,7 +50,6 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final docSurfaces = context.docSurfaces;
     final tokens = SyntaxHighlighter.highlight(widget.code, widget.language);
     final baseStyle = TextStyle(
       fontFamily: DocColors.mono,
@@ -66,8 +60,8 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: docSurfaces.codeBg,
-        border: Border.all(color: docSurfaces.codeBorder, width: 2),
+        color: scheme.surfaceContainerHigh,
+        border: Border.all(color: scheme.outlineVariant, width: 2),
         borderRadius: BorderRadius.circular(DocColors.lg),
       ),
       child: Column(
@@ -79,7 +73,7 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
               vertical: DocColors.s2,
             ),
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: docSurfaces.codeBorder, width: 2)),
+              border: Border(bottom: BorderSide(color: scheme.outlineVariant, width: 2)),
             ),
             width: double.infinity,
             child: Row(
@@ -92,7 +86,7 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
                     style: TextStyle(
                       fontFamily: DocColors.mono,
                       fontSize: (widget.fontSize / 0.8),
-                      color: docSurfaces.textFaint,
+                      color: scheme.outline,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -132,7 +126,7 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
                       TextSpan(
                         text: token.text,
                         style: baseStyle.copyWith(
-                          color: _tokenColor(token.type, scheme, docSurfaces),
+                          color: _tokenColor(token.type, scheme),
                         ),
                       ),
                   ],

@@ -36,7 +36,6 @@ class MarkdownTableBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final docSurfaces = context.docSurfaces;
     final columnCount = rows.first.length;
     final header = _normalizeRow(rows.first, columnCount);
     final body = rows
@@ -47,7 +46,7 @@ class MarkdownTableBlock extends StatelessWidget {
         .copyWith(fontSize: fontSize);
     final headingStyle = bodyStyle.copyWith(
       fontWeight: FontWeight.w700,
-      color: docSurfaces.heading,
+      color: scheme.onSurface,
     );
 
     return SizedBox(

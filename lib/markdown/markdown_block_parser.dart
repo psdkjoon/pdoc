@@ -125,30 +125,49 @@ class MarkdownBlockParser {
       }
 
       if (_bulletMatch.hasMatch(line) || _orderedMatch.hasMatch(line)) {
-        final ordered = _orderedMatch.hasMatch(line);
-        final firstMatch = ordered
-            ? _orderedMatch.firstMatch(line)!
-            : _bulletMatch.firstMatch(line)!;
-        final startNumber = int.tryParse(firstMatch.group(2) ?? '') ?? 1;
-        final items = <String>[];
+        final items = <MarkdownListItem>[];
+        final orderedCounters = <int, int>{};
+
         while (i < lines.length) {
-          final match = ordered
-              ? _orderedMatch.firstMatch(lines[i])
-              : _bulletMatch.firstMatch(lines[i]);
-          if (match == null) break;
+          final rawLine = lines[i];
+          final orderedMatch = _orderedMatch.firstMatch(rawLine);
+          final bulletMatch = _bulletMatch.firstMatch(rawLine);
+          if (orderedMatch == null && bulletMatch == null) break;
+
+          final ordered = orderedMatch != null;
+          final match = ordered ? orderedMatch : bulletMatch!;
+          final indent = match.group(1)!;
+          final indentWidth = _indentWidth(indent);
+          final depth = _depthForIndent(indent);
           var text = match.group(3)!;
+
+          final number = ordered
+              ? (int.tryParse(orderedMatch.group(2) ?? '') ??
+                    (orderedCounters[depth] ?? 1))
+              : 1;
+          orderedCounters.removeWhere((d, _) => d > depth);
+          orderedCounters[depth] = number + 1;
+
           i++;
           while (i < lines.length &&
               lines[i].trim().isNotEmpty &&
-              (lines[i].startsWith('  ') || lines[i].startsWith('\t')) &&
+              _indentWidth(lines[i]) > indentWidth &&
               !_bulletMatch.hasMatch(lines[i]) &&
               !_orderedMatch.hasMatch(lines[i])) {
             text += ' ${lines[i].trim()}';
             i++;
           }
-          items.add(text);
+
+          items.add(
+            MarkdownListItem(
+              text: text,
+              depth: depth,
+              ordered: ordered,
+              number: number,
+            ),
+          );
         }
-        blocks.add(MarkdownBlock.list(items, ordered, startNumber));
+        blocks.add(MarkdownBlock.list(items));
         continue;
       }
 
@@ -201,5 +220,25 @@ class MarkdownBlockParser {
     }
     cells.add(buffer.toString().trim());
     return cells;
+  }
+
+  static int _indentWidth(String line) {
+    var width = 0;
+    for (final char in line.split('')) {
+      if (char == ' ') {
+        width++;
+      } else if (char == '\t') {
+        width += 4;
+      } else {
+        break;
+      }
+    }
+    return width;
+  }
+
+  static int _depthForIndent(String indent) {
+    if (indent.isEmpty) return 0;
+    final width = _indentWidth(indent);
+    return (width / 2).floor();
   }
 }

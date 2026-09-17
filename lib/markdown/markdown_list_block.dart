@@ -1,41 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:pdoc/markdown/markdown_inline.dart';
+import 'package:pdoc/markdown/markdown_block.dart';
 import 'package:pdoc/markdown/markdown_inline_text.dart';
 import 'package:pdoc/src/theme.dart';
 
 class MarkdownListBlock extends StatelessWidget {
-  final List<String> items;
-  final bool ordered;
-  final int startNumber;
+  final List<MarkdownListItem> items;
   final TextStyle baseStyle;
   final void Function(String href)? onLinkTap;
 
   const MarkdownListBlock({
     super.key,
     required this.items,
-    required this.ordered,
     required this.baseStyle,
-    this.startNumber = 1,
     this.onLinkTap,
   });
+
+  static const _bulletGlyphs = ['•', '◦', '▪'];
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final markerWidth = (baseStyle.fontSize ?? 15) * 1.6;
+    const indentPerLevel = DocColors.s4;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (var index = 0; index < items.length; index++)
+        for (final item in items)
           Padding(
-            padding: const EdgeInsets.only(bottom: DocColors.s2),
+            padding: EdgeInsets.only(
+              left: item.depth * indentPerLevel,
+              bottom: DocColors.s2,
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   width: markerWidth,
                   child: Text(
-                    ordered ? '${startNumber + index}.' : '•',
+                    item.ordered
+                        ? '${item.number}.'
+                        : _bulletGlyphs[item.depth % _bulletGlyphs.length],
                     textAlign: TextAlign.end,
                     style: baseStyle.copyWith(
                       color: scheme.primary,
@@ -46,7 +51,7 @@ class MarkdownListBlock extends StatelessWidget {
                 const SizedBox(width: DocColors.s2),
                 Expanded(
                   child: MarkdownInlineText(
-                    spans: MarkdownInlineParser.parse(items[index]),
+                    spans: item.inlineSpans,
                     baseStyle: baseStyle,
                     onLinkTap: onLinkTap,
                   ),

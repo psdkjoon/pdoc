@@ -9,7 +9,7 @@ Future<void> showExternalLinkDialog(BuildContext context, String href) async {
     context: context,
     builder: (dialogContext) {
       return AlertDialog(
-        backgroundColor: context.docSurfaces.cardBg,
+        backgroundColor: scheme.surfaceContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(DocColors.sm),
         ),

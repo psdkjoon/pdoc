@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdoc/logic/docs_controller.dart';
 import 'package:pdoc/logic/searchbar_controller.dart';
+import 'package:pdoc/src/theme.dart';
 
 class DocsCards extends StatelessWidget {
   final Docs docs;
@@ -33,31 +34,39 @@ class DocsCards extends StatelessWidget {
             }
           }
           final filtered = titleMatches + descMatches;
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final crossAxisCount = (constraints.maxWidth / 300)
-                  .floor()
-                  .clamp(1, 10)
-                  .toInt();
-              return ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context)
-                    .copyWith(scrollbars: false),
-                child: GridView.builder(
-                  padding: const EdgeInsets.only(top: 25, left: 25, right: 25),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: isWide ? 1.5 : 2.5,
+          return Padding(
+            padding: const EdgeInsets.only(top: DocColors.s1),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final crossAxisCount = (constraints.maxWidth / 300)
+                    .floor()
+                    .clamp(1, 10)
+                    .toInt();
+                return ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context)
+                      .copyWith(scrollbars: false),
+                  child: GridView.builder(
+                    padding: const EdgeInsets.only(
+                      top: DocColors.s2,
+                      left: DocColors.s6,
+                      right: DocColors.s6,
+                      bottom: DocColors.s3,
+                    ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: isWide ? 1.5 : 2.5,
+                    ),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final doc = filtered[index];
+                      return DocCard(doc: doc, onTap: () => onOpen(doc));
+                    },
                   ),
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final doc = filtered[index];
-                    return DocCard(doc: doc, onTap: () => onOpen(doc));
-                  },
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),

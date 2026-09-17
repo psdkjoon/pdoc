@@ -82,6 +82,7 @@ class DocColors {
   static const s6 = 48.0;
   static const s7 = 64.0;
   static const sm = 10.0;
+  static const md = 15.0;
   static const lg = 20.0;
   static const pill = 999.0;
   static const sidebarWidth = 300.0;
@@ -95,58 +96,6 @@ class DocColors {
   static const curve = Curves.fastOutSlowIn;
   static const sans = 'Space Grotesk';
   static const mono = 'JetBrains Mono';
-}
-
-@immutable
-class DocSurfaces extends ThemeExtension<DocSurfaces> {
-  final Color cardBg;
-  final Color codeBg;
-  final Color codeBorder;
-  final Color heading;
-  final Color textFaint;
-
-  const DocSurfaces({
-    required this.cardBg,
-    required this.codeBg,
-    required this.codeBorder,
-    required this.heading,
-    required this.textFaint,
-  });
-
-  factory DocSurfaces.from(DocColors c) => DocSurfaces(
-    cardBg: c.cardBg,
-    codeBg: c.codeBg,
-    codeBorder: c.codeBorder,
-    heading: c.heading,
-    textFaint: c.textFaint,
-  );
-
-  @override
-  DocSurfaces copyWith({
-    Color? cardBg,
-    Color? codeBg,
-    Color? codeBorder,
-    Color? heading,
-    Color? textFaint,
-  }) => DocSurfaces(
-    cardBg: cardBg ?? this.cardBg,
-    codeBg: codeBg ?? this.codeBg,
-    codeBorder: codeBorder ?? this.codeBorder,
-    heading: heading ?? this.heading,
-    textFaint: textFaint ?? this.textFaint,
-  );
-
-  @override
-  DocSurfaces lerp(ThemeExtension<DocSurfaces>? other, double t) {
-    if (other is! DocSurfaces) return this;
-    return DocSurfaces(
-      cardBg: Color.lerp(cardBg, other.cardBg, t)!,
-      codeBg: Color.lerp(codeBg, other.codeBg, t)!,
-      codeBorder: Color.lerp(codeBorder, other.codeBorder, t)!,
-      heading: Color.lerp(heading, other.heading, t)!,
-      textFaint: Color.lerp(textFaint, other.textFaint, t)!,
-    );
-  }
 }
 
 ThemeData _buildTheme(Brightness brightness, DocColors c) {
@@ -191,7 +140,6 @@ ThemeData _buildTheme(Brightness brightness, DocColors c) {
     splashFactory: NoSplash.splashFactory,
     highlightColor: Colors.transparent,
     dividerColor: c.border,
-    extensions: [DocSurfaces.from(c)],
     cardTheme: CardThemeData(
       color: c.cardBg,
       surfaceTintColor: Colors.transparent,
@@ -292,7 +240,3 @@ ThemeData _buildTheme(Brightness brightness, DocColors c) {
 
 final ThemeData lightTheme = _buildTheme(Brightness.light, DocColors.light);
 final ThemeData darkTheme = _buildTheme(Brightness.dark, DocColors.dark);
-
-extension DocColorsContext on BuildContext {
-  DocSurfaces get docSurfaces => Theme.of(this).extension<DocSurfaces>()!;
-}

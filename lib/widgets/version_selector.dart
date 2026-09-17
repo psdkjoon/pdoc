@@ -44,7 +44,7 @@ class _VersionSelectorState extends State<VersionSelector> {
         overlay.size.width - bottomRight.dx,
         0,
       ),
-      color: context.docSurfaces.cardBg,
+      color: scheme.surfaceContainer,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(DocColors.sm),

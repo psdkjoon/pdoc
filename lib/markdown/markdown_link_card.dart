@@ -30,12 +30,11 @@ class _MarkdownLinkCardState extends State<MarkdownLinkCard> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final docSurfaces = context.docSurfaces;
     final highlighted = _hovered || _focused;
     return Semantics(
       link: true,
       child: Material(
-        color: docSurfaces.cardBg,
+        color: scheme.surfaceContainer,
         animationDuration: DocColors.fast,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
@@ -65,7 +64,7 @@ class _MarkdownLinkCardState extends State<MarkdownLinkCard> {
                       baseStyle: TextStyle(
                         fontSize: widget.headingFontSize,
                         fontWeight: FontWeight.w700,
-                        color: docSurfaces.heading,
+                        color: scheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: DocColors.s2),
