@@ -42,6 +42,7 @@ class _DocPageState extends State<DocPage> {
   late String currentSection;
   late String currentPage;
   late Set<String> expandedSections;
+  late bool _sidebarOpen = true;
 
   @override
   void initState() {
@@ -88,6 +89,10 @@ class _DocPageState extends State<DocPage> {
         );
       }
     });
+  }
+
+  void _toggleSidebar() {
+    setState(() => _sidebarOpen = !_sidebarOpen);
   }
 
   void goTo(String section, String page) {
@@ -141,7 +146,12 @@ class _DocPageState extends State<DocPage> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: DocAppBar(args: args, openSearch: _openSearch),
+      appBar: DocAppBar(
+        args: args,
+        openSearch: _openSearch,
+        toggleSidebar: _toggleSidebar,
+        sidebarOpen: _sidebarOpen,
+      ),
       drawer: isWide
           ? null
           : Drawer(
@@ -164,7 +174,7 @@ class _DocPageState extends State<DocPage> {
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isWide)
+          if (isWide && _sidebarOpen)
             WideSidebar(
               args: args,
               currentSection: currentSection,

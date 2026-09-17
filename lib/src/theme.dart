@@ -86,7 +86,7 @@ class DocColors {
   static const pill = 999.0;
   static const sidebarWidth = 300.0;
   static const headerHeight = 64.0;
-  static const maxDocWidth = 860.0;
+  static const maxDocWidth = 1600.0;
   static const maxPageWidth = 1100.0;
   static const wideBreakpoint = 900.0;
   static const fast = Duration(milliseconds: 150);

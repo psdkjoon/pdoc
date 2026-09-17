@@ -11,23 +11,25 @@ class MarkdownImageBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final isNetwork = src.startsWith('http://') || src.startsWith('https://');
     final scheme = Theme.of(context).colorScheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(DocColors.sm),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: scheme.outlineVariant),
-        ),
-        child: isNetwork
-            ? Image.network(
-                src,
-                errorBuilder: (context, error, stackTrace) =>
-                    _fallback(context),
-                loadingBuilder: (context, child, progress) => progress == null
-                    ? child
-                    : _fallback(context, loading: true),
-              )
-            : _fallback(context),
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(DocColors.lg),
       ),
+      foregroundDecoration: BoxDecoration(
+        border: Border.all(color: scheme.outlineVariant),
+        borderRadius: BorderRadius.circular(DocColors.lg),
+      ),
+      child: isNetwork
+          ? Image.network(
+              src,
+              semanticLabel: alt.isNotEmpty ? alt : null,
+              errorBuilder: (context, error, stackTrace) => _fallback(context),
+              loadingBuilder: (context, child, progress) =>
+                  progress == null ? child : _fallback(context, loading: true),
+            )
+          : _fallback(context),
     );
   }
 
@@ -35,7 +37,7 @@ class MarkdownImageBlock extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final docSurfaces = context.docSurfaces;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(DocColors.s4),
       color: scheme.surfaceContainer,
       alignment: Alignment.center,
       child: Column(

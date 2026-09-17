@@ -23,7 +23,7 @@ class MarkdownTableBlock extends StatelessWidget {
 
   Widget _cell(String text, TextStyle style) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.all(DocColors.s3),
       child: MarkdownInlineText(
         spans: MarkdownInlineParser.parse(text),
         baseStyle: style,
@@ -43,9 +43,8 @@ class MarkdownTableBlock extends StatelessWidget {
         .skip(1)
         .map((row) => _normalizeRow(row, columnCount))
         .toList();
-    final bodyStyle = Theme.of(
-      context,
-    ).textTheme.bodyMedium!.copyWith(fontSize: fontSize);
+    final bodyStyle = Theme.of(context).textTheme.bodyMedium!
+        .copyWith(fontSize: fontSize);
     final headingStyle = bodyStyle.copyWith(
       fontWeight: FontWeight.w700,
       color: docSurfaces.heading,
@@ -54,11 +53,11 @@ class MarkdownTableBlock extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(DocColors.sm),
+        borderRadius: BorderRadius.circular(DocColors.lg),
         child: Container(
           decoration: BoxDecoration(
-            border: Border.all(color: scheme.outline),
-            borderRadius: BorderRadius.circular(DocColors.sm),
+            border: Border.all(color: scheme.outlineVariant),
+            borderRadius: BorderRadius.circular(DocColors.lg),
           ),
           child: Table(
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,

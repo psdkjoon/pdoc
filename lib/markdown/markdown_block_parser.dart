@@ -129,9 +129,7 @@ class MarkdownBlockParser {
         final firstMatch = ordered
             ? _orderedMatch.firstMatch(line)!
             : _bulletMatch.firstMatch(line)!;
-        final startNumber = ordered
-            ? int.tryParse(firstMatch.group(2)!) ?? 1
-            : 1;
+        final startNumber = int.tryParse(firstMatch.group(2) ?? '') ?? 1;
         final items = <String>[];
         while (i < lines.length) {
           final match = ordered

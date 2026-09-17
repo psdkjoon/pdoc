@@ -32,61 +32,70 @@ class _AppFooterState extends State<AppFooter> {
     final scheme = Theme.of(context).colorScheme;
     final gradient = LinearGradient(colors: [scheme.primary, scheme.secondary]);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Center(
-        child: GestureDetector(
-          onTap: () => showExternalLinkDialog(context, githubPageUrl),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            textBaseline: TextBaseline.alphabetic,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            children: [
-              Text(
-                'Made by ',
-                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
-              ),
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                onEnter: (_) => setState(() => _hovered = true),
-                onExit: (_) => setState(() => _hovered = false),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ShaderMask(
-                      blendMode: BlendMode.srcIn,
-                      shaderCallback: (bounds) => gradient.createShader(bounds),
-                      child: const Text('Hossein', style: _nameStyle),
-                    ),
-                    const SizedBox(height: 3),
-                    SizedBox(
-                      height: 2,
-                      width: _nameWidth,
-                      child: TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0, end: _hovered ? 1.0 : 0.0),
-                        duration: DocColors.fast,
-                        curve: DocColors.curve,
-                        builder: (context, value, child) => Align(
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: _nameWidth * value,
-                            height: 2,
-                            child: child,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: scheme.outline, width: 3)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Center(
+          child: GestureDetector(
+            onTap: () => showExternalLinkDialog(context, githubPageUrl),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              textBaseline: TextBaseline.alphabetic,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              children: [
+                Text(
+                  'Made by ',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  onEnter: (_) => setState(() => _hovered = true),
+                  onExit: (_) => setState(() => _hovered = false),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ShaderMask(
+                        blendMode: BlendMode.srcIn,
+                        shaderCallback: (bounds) =>
+                            gradient.createShader(bounds),
+                        child: const Text('Hossein', style: _nameStyle),
+                      ),
+                      const SizedBox(height: 3),
+                      SizedBox(
+                        height: 2,
+                        width: _nameWidth,
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: _hovered ? 1.0 : 0.0),
+                          duration: DocColors.slow,
+                          curve: DocColors.curve,
+                          builder: (context, value, child) => Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: _nameWidth * value,
+                              height: 2,
+                              child: child,
+                            ),
                           ),
-                        ),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: gradient,
-                            borderRadius: BorderRadius.circular(1),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: gradient,
+                              borderRadius: BorderRadius.circular(1),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

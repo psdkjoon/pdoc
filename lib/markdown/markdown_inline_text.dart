@@ -74,7 +74,7 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
     final docSurfaces = context.docSurfaces;
     final baseStyle = widget.baseStyle;
 
-    return SelectableText.rich(
+    return Text.rich(
       TextSpan(
         children: widget.spans.map((span) {
           switch (span.type) {

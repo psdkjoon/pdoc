@@ -35,9 +35,8 @@ class MarkdownInlineSpan {
 }
 
 class MarkdownInlineParser {
-  static List<MarkdownInlineSpan> parse(String text) => _parse(text);
 
-  static List<MarkdownInlineSpan> _parse(String text) {
+  static List<MarkdownInlineSpan> parse(String text) {
     final spans = <MarkdownInlineSpan>[];
     var i = 0;
     final buffer = StringBuffer();
@@ -57,7 +56,7 @@ class MarkdownInlineParser {
       bool italic = false,
       bool strike = false,
     }) {
-      return _parse(inner)
+      return parse(inner)
           .map(
             (span) => span._withExtraEmphasis(
               bold: bold,

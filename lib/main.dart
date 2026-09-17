@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pdoc/logic/docs_controller.dart';
 import 'package:pdoc/logic/font_size_controller.dart';
 import 'package:pdoc/logic/theme_controller.dart';
@@ -12,6 +13,7 @@ Future<void> main() async {
   await loadThemeMode();
   await loadFontSize();
   unawaited(loadDocsIntoCache());
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const DocsApp());
 }
 

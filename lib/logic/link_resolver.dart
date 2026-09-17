@@ -5,12 +5,14 @@ class ResolvedDocLink {
   final String version;
   final String section;
   final String page;
+  final String? anchor;
 
   ResolvedDocLink({
     required this.doc,
     required this.version,
     required this.section,
     required this.page,
+    this.anchor,
   });
 }
 
@@ -58,30 +60,75 @@ double _wordOverlap(String a, String b) {
   return union == 0 ? 0 : intersection / union;
 }
 
-ResolvedDocLink? resolveInternalLink(String href, List<Doc> allDocs) {
-  var path = href;
-  final hashIndex = path.indexOf('#');
-  if (hashIndex != -1) path = path.substring(0, hashIndex);
-  final segments = path
-      .split('/')
-      .where((segment) => segment.isNotEmpty)
-      .toList();
-  if (segments.isEmpty) return null;
+Doc? _findDoc(String target, List<Doc> allDocs) {
+  final targetSlug = slugify(target);
 
-  Doc? doc;
   for (final candidate in allDocs) {
-    if (slugify(candidate['title'] as String) == segments.first) {
-      doc = candidate;
-      break;
+    if (slugify(candidate['title'] as String) == targetSlug) {
+      return candidate;
     }
   }
+
+  Doc? best;
+  var bestScore = 0.0;
+  for (final candidate in allDocs) {
+    final score = _wordOverlap(
+      targetSlug,
+      slugify(candidate['title'] as String),
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      best = candidate;
+    }
+  }
+  return bestScore >= 0.5 ? best : null;
+}
+
+ResolvedDocLink? resolveInternalLink(
+  String href,
+  List<Doc> allDocs, {
+  Doc? currentDoc,
+  String? currentVersion,
+  String? currentSection,
+  String? currentPage,
+}) {
+  final uri = Uri.tryParse(href.trim());
+  if (uri == null || uri.hasScheme || uri.hasAuthority) return null;
+  final String? anchor;
+  final List<String> segments;
+  try {
+    anchor = uri.hasFragment ? Uri.decodeComponent(uri.fragment) : null;
+    segments = uri.pathSegments.where((segment) => segment.isNotEmpty).toList();
+  } on FormatException {
+    return null;
+  }
+  if (segments.isEmpty) {
+    if (currentDoc == null ||
+        currentVersion == null ||
+        currentSection == null ||
+        currentPage == null) {
+      return null;
+    }
+    return ResolvedDocLink(
+      doc: currentDoc,
+      version: currentVersion,
+      section: currentSection,
+      page: currentPage,
+      anchor: anchor,
+    );
+  }
+
+  final doc = _findDoc(segments.first, allDocs);
   if (doc == null) return null;
 
   final versions = docVersions(doc);
   if (versions.isEmpty) return null;
 
   var remaining = segments.sublist(1);
-  var version = versions.last;
+  var version =
+      doc['title'] == currentDoc?['title'] && versions.contains(currentVersion)
+      ? currentVersion!
+      : versions.last;
   if (remaining.isNotEmpty && versions.contains(remaining.first)) {
     version = remaining.first;
     remaining = remaining.sublist(1);

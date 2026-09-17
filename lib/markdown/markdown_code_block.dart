@@ -12,7 +12,7 @@ class MarkdownCodeBlock extends StatefulWidget {
     super.key,
     required this.code,
     required this.language,
-    this.fontSize = 14,
+    required this.fontSize,
   });
 
   @override
@@ -64,18 +64,22 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
     );
 
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: docSurfaces.codeBg,
-        border: Border.all(color: docSurfaces.codeBorder),
-        borderRadius: BorderRadius.circular(DocColors.sm),
+        border: Border.all(color: docSurfaces.codeBorder, width: 2),
+        borderRadius: BorderRadius.circular(DocColors.lg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(
+              horizontal: DocColors.s3,
+              vertical: DocColors.s2,
+            ),
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: docSurfaces.codeBorder)),
+              border: Border(bottom: BorderSide(color: docSurfaces.codeBorder, width: 2)),
             ),
             width: double.infinity,
             child: Row(
@@ -87,7 +91,7 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
                         : 'text',
                     style: TextStyle(
                       fontFamily: DocColors.mono,
-                      fontSize: 11,
+                      fontSize: (widget.fontSize / 0.8),
                       color: docSurfaces.textFaint,
                       letterSpacing: 0.5,
                     ),
@@ -95,18 +99,22 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
                 ),
                 Material(
                   color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(DocColors.sm),
-                    onTap: _copyCode,
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        _copied ? Icons.check : Icons.copy_rounded,
-                        size: 16,
-                        color: _copied
-                            ? scheme.primary
-                            : scheme.onSurfaceVariant,
+                  child: IconButton(
+                    onPressed: _copyCode,
+                    tooltip: _copied ? 'Copied' : 'Copy code',
+                    constraints: const BoxConstraints(
+                      minWidth: DocColors.s6,
+                      minHeight: DocColors.s6,
+                    ),
+                    style: IconButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(DocColors.sm),
                       ),
+                    ),
+                    icon: Icon(
+                      _copied ? Icons.check : Icons.copy_rounded,
+                      size: (widget.fontSize / 0.8),
+                      color: _copied ? scheme.primary : scheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -114,7 +122,7 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(DocColors.s3),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SelectableText.rich(

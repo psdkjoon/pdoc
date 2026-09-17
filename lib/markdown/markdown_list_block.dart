@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdoc/markdown/markdown_inline.dart';
 import 'package:pdoc/markdown/markdown_inline_text.dart';
+import 'package:pdoc/src/theme.dart';
 
 class MarkdownListBlock extends StatelessWidget {
   final List<String> items;
@@ -27,7 +28,7 @@ class MarkdownListBlock extends StatelessWidget {
       children: [
         for (var index = 0; index < items.length; index++)
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: DocColors.s2),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -35,12 +36,14 @@ class MarkdownListBlock extends StatelessWidget {
                   width: markerWidth,
                   child: Text(
                     ordered ? '${startNumber + index}.' : '•',
+                    textAlign: TextAlign.end,
                     style: baseStyle.copyWith(
                       color: scheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
+                const SizedBox(width: DocColors.s2),
                 Expanded(
                   child: MarkdownInlineText(
                     spans: MarkdownInlineParser.parse(items[index]),

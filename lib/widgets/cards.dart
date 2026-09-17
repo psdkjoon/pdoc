@@ -17,31 +17,33 @@ class DocsCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 25.0),
-        child: ValueListenableBuilder<String>(
-          valueListenable: searchBarNotifier,
-          builder: (context, query, _) {
-            final queryLowerCase = query.toLowerCase();
-            final titleMatches = <Doc>[], descMatches = <Doc>[];
-            for (final doc in docs) {
-              final title = (doc['title'] as String).toLowerCase();
-              if (title.contains(queryLowerCase)) {
-                titleMatches.add(doc);
-              } else if ((doc['description'] as String).toLowerCase().contains(
-                queryLowerCase,
-              )) {
-                descMatches.add(doc);
-              }
+      child: ValueListenableBuilder<String>(
+        valueListenable: searchBarNotifier,
+        builder: (context, query, _) {
+          final queryLowerCase = query.toLowerCase();
+          final titleMatches = <Doc>[], descMatches = <Doc>[];
+          for (final doc in docs) {
+            final title = (doc['title'] as String).toLowerCase();
+            if (title.contains(queryLowerCase)) {
+              titleMatches.add(doc);
+            } else if ((doc['description'] as String).toLowerCase().contains(
+              queryLowerCase,
+            )) {
+              descMatches.add(doc);
             }
-            final filtered = titleMatches + descMatches;
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final crossAxisCount = (constraints.maxWidth / 300)
-                    .floor()
-                    .clamp(1, 10)
-                    .toInt();
-                return GridView.builder(
+          }
+          final filtered = titleMatches + descMatches;
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount = (constraints.maxWidth / 300)
+                  .floor()
+                  .clamp(1, 10)
+                  .toInt();
+              return ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context)
+                    .copyWith(scrollbars: false),
+                child: GridView.builder(
+                  padding: const EdgeInsets.only(top: 25, left: 25, right: 25),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: 10,
@@ -53,11 +55,11 @@ class DocsCards extends StatelessWidget {
                     final doc = filtered[index];
                     return DocCard(doc: doc, onTap: () => onOpen(doc));
                   },
-                );
-              },
-            );
-          },
-        ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

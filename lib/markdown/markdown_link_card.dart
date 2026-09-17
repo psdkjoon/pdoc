@@ -25,48 +25,62 @@ class MarkdownLinkCard extends StatefulWidget {
 
 class _MarkdownLinkCardState extends State<MarkdownLinkCard> {
   bool _hovered = false;
+  bool _focused = false;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final docSurfaces = context.docSurfaces;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: DocColors.fast,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: docSurfaces.cardBg,
-            borderRadius: BorderRadius.circular(DocColors.sm),
-            border: Border.all(
-              color: _hovered ? scheme.primary : scheme.outlineVariant,
-            ),
+    final highlighted = _hovered || _focused;
+    return Semantics(
+      link: true,
+      child: Material(
+        color: docSurfaces.cardBg,
+        animationDuration: DocColors.fast,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DocColors.lg),
+          side: BorderSide(
+            color: highlighted ? scheme.primary : scheme.outlineVariant,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MarkdownInlineText(
-                spans: widget.headingSpans,
-                baseStyle: TextStyle(
-                  fontSize: widget.headingFontSize,
-                  fontWeight: FontWeight.w700,
-                  color: docSurfaces.heading,
+        ),
+        child: InkWell(
+          onTap: widget.onTap,
+          onHover: (value) => setState(() => _hovered = value),
+          onFocusChange: (value) => setState(() => _focused = value),
+          mouseCursor: SystemMouseCursors.click,
+          borderRadius: BorderRadius.circular(DocColors.lg),
+          hoverColor: scheme.primary.withValues(alpha: 0.04),
+          focusColor: scheme.primary.withValues(alpha: 0.08),
+          child: ExcludeFocus(
+            child: IgnorePointer(
+              child: Padding(
+                padding: const EdgeInsets.all(DocColors.s4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MarkdownInlineText(
+                      spans: widget.headingSpans,
+                      baseStyle: TextStyle(
+                        fontSize: widget.headingFontSize,
+                        fontWeight: FontWeight.w700,
+                        color: docSurfaces.heading,
+                      ),
+                    ),
+                    const SizedBox(height: DocColors.s2),
+                    MarkdownInlineText(
+                      spans: widget.bodySpans,
+                      baseStyle: Theme.of(context).textTheme.bodyMedium!
+                          .copyWith(
+                            fontSize: widget.bodyFontSize,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 6),
-              MarkdownInlineText(
-                spans: widget.bodySpans,
-                baseStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: widget.bodyFontSize,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

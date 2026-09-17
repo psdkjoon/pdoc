@@ -58,12 +58,13 @@ class HomePage extends StatelessWidget {
             ),
           ),
           SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -82,9 +83,9 @@ class HomePage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const AppFooter(),
-                ],
-              ),
+                ),
+                const AppFooter(),
+              ],
             ),
           ),
         ],

@@ -11,7 +11,7 @@ class MarkdownBlockQuote extends StatelessWidget {
   const MarkdownBlockQuote({
     super.key,
     required this.text,
-    this.fontSize = 18,
+    required this.fontSize,
     this.onLinkTap,
   });
 
@@ -19,20 +19,27 @@ class MarkdownBlockQuote extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      clipBehavior: Clip.antiAlias,
+      padding: const EdgeInsets.all(DocColors.s3),
       decoration: BoxDecoration(
         color: scheme.surfaceContainer,
-        border: Border(left: BorderSide(color: scheme.primary, width: 3)),
-        borderRadius: BorderRadius.circular(DocColors.sm),
+        border: Border.all(color: scheme.outlineVariant),
+        borderRadius: BorderRadius.circular(DocColors.lg),
       ),
-      child: MarkdownInlineText(
-        spans: MarkdownInlineParser.parse(text),
-        baseStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-          fontSize: fontSize,
-          fontStyle: FontStyle.italic,
-          color: scheme.onSurfaceVariant,
+      child: Container(
+        padding: const EdgeInsets.only(left: DocColors.s3),
+        decoration: BoxDecoration(
+          border: Border(left: BorderSide(color: scheme.primary, width: 3)),
         ),
-        onLinkTap: onLinkTap,
+        child: MarkdownInlineText(
+          spans: MarkdownInlineParser.parse(text),
+          baseStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            fontSize: fontSize,
+            fontStyle: FontStyle.italic,
+            color: scheme.onSurfaceVariant,
+          ),
+          onLinkTap: onLinkTap,
+        ),
       ),
     );
   }

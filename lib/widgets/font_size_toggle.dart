@@ -18,7 +18,8 @@ class FontSizeToggle extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               for (var i = 0; i < DocFontSize.values.length; i++)
                 Container(
@@ -32,6 +33,12 @@ class FontSizeToggle extends StatelessWidget {
                   child: _FontSizeOption(
                     size: DocFontSize.values[i],
                     selected: DocFontSize.values[i] == value,
+                    borderRadius: BorderRadius.horizontal(
+                      left: i == 0 ? const Radius.circular(6) : Radius.zero,
+                      right: i == DocFontSize.values.length - 1
+                          ? const Radius.circular(6)
+                          : Radius.zero,
+                    ),
                   ),
                 ),
             ],
@@ -45,8 +52,13 @@ class FontSizeToggle extends StatelessWidget {
 class _FontSizeOption extends StatefulWidget {
   final DocFontSize size;
   final bool selected;
+  final BorderRadius borderRadius;
 
-  const _FontSizeOption({required this.size, required this.selected});
+  const _FontSizeOption({
+    required this.size,
+    required this.selected,
+    required this.borderRadius,
+  });
 
   @override
   State<_FontSizeOption> createState() => _FontSizeOptionState();
@@ -69,11 +81,18 @@ class _FontSizeOptionState extends State<_FontSizeOption> {
       child: GestureDetector(
         onTap: () => setFontSize(widget.size),
         child: AnimatedContainer(
+          width: 30,
+          height: 40,
+          alignment: Alignment.center,
           duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          color: widget.selected ? scheme.primary : Colors.transparent,
+          padding: EdgeInsets.zero,
+          decoration: BoxDecoration(
+            color: widget.selected ? scheme.primary : Colors.transparent,
+            borderRadius: widget.borderRadius,
+          ),
           child: Text(
             'A',
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: widget.size.labelFontSize,
               fontWeight: FontWeight.w700,

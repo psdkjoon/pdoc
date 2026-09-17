@@ -8,11 +8,15 @@ import 'package:pdoc/widgets/theme_toggle.dart';
 class DocAppBar extends StatelessWidget implements PreferredSizeWidget {
   final DocPageArgs args;
   final VoidCallback openSearch;
+  final VoidCallback toggleSidebar;
+  final bool sidebarOpen;
 
   const DocAppBar({
     super.key,
     required this.args,
     required this.openSearch,
+    required this.toggleSidebar,
+    required this.sidebarOpen,
   });
 
   @override
@@ -21,6 +25,12 @@ class DocAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      leading: sidebarOpen
+          ? IconButton(
+              onPressed: toggleSidebar,
+              icon: const Icon(Icons.arrow_back),
+            )
+          : IconButton(onPressed: toggleSidebar, icon: const Icon(Icons.menu)),
       title: Text('${args.projectTitle} Docs'),
       actions: [
         const GithubButton(),
