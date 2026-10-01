@@ -37,13 +37,18 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final width = MediaQuery.of(context).size.width;
-    final isWide =
-        MediaQuery.of(context).size.width >= DocColors.wideBreakpoint;
-    final horizontalPadding = width >= 900
-        ? 100.0
-        : (width >= 600 ? 48.0 : 16.0);
-    final particleCount = width >= 900 ? 200 : (width >= 600 ? 150 : 90);
+    final width = MediaQuery.sizeOf(context).width;
+    final isWide = width >= DocValues.wideBreakpoint;
+    final isMedium = width >= DocValues.mediumBreakpoint;
+
+    final horizontalPadding = isWide
+        ? DocValues.pagePadWide
+        : (isMedium ? DocValues.pagePadMedium : DocValues.pagePadCompact);
+    final particleCount = isWide
+        ? DocValues.particlesHomeWide
+        : (isMedium
+              ? DocValues.particlesHomeMedium
+              : DocValues.particlesHomeCompact);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -67,18 +72,25 @@ class HomePage extends StatelessWidget {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
+                        const SizedBox(height: DocValues.s4),
                         const TitleAndSearchBar(),
-                        ValueListenableBuilder<Docs>(
-                          valueListenable: docsNotifier,
-                          builder: (context, docs, _) {
-                            return DocsCards(
-                              docs: docs,
-                              onOpen: (doc) => _openDoc(context, doc),
-                              isWide: isWide,
-                            );
-                          },
+                        const SizedBox(height: DocValues.s2),
+                        Expanded(
+                          child: ValueListenableBuilder<bool>(
+                            valueListenable: docsLoadingNotifier,
+                            builder: (context, loading, _) {
+                              if (loading) return const _LoadingDocs();
+                              return ValueListenableBuilder<Docs>(
+                                valueListenable: docsNotifier,
+                                builder: (context, docs, _) => DocsCards(
+                                  docs: docs,
+                                  onOpen: (doc) => _openDoc(context, doc),
+                                  isWide: isWide,
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -89,6 +101,24 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LoadingDocs extends StatelessWidget {
+  const _LoadingDocs();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Semantics(
+        label: 'Loading documentation',
+        child: CircularProgressIndicator(
+          strokeWidth: DocValues.borderThick,
+          color: scheme.primary,
+        ),
       ),
     );
   }

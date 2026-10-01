@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdoc/logic/searchbar_controller.dart';
+import 'package:pdoc/src/theme.dart';
+import 'package:pdoc/widgets/fit_text.dart';
 
 class TitleAndSearchBar extends StatefulWidget {
   const TitleAndSearchBar({super.key});
@@ -20,52 +22,63 @@ class _TitleAndSearchBarState extends State<TitleAndSearchBar> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final width = MediaQuery.of(context).size.width;
-    final titleFontSize = width >= 600 ? 56.0 : 36.0;
+    final width = MediaQuery.sizeOf(context).width;
+    final titleFontSize = width >= DocValues.mediumBreakpoint
+        ? DocValues.fsHeroWide
+        : DocValues.fsHeroCompact;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
+        FitText(
           'Documentation',
+          textAlign: TextAlign.center,
+          minFontSize: DocValues.fsHeadMd,
           style: TextStyle(
             fontSize: titleFontSize,
-            fontWeight: FontWeight.bold,
+            fontWeight: DocValues.fwBold,
+            color: scheme.onSurface,
           ),
-          textAlign: TextAlign.left,
         ),
+        const SizedBox(height: DocValues.s2),
         Container(
           decoration: BoxDecoration(
             color: scheme.surfaceContainer,
-            border: Border.all(color: scheme.outline, width: 2),
-            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: scheme.outline,
+              width: DocValues.borderMed,
+            ),
+            borderRadius: BorderRadius.circular(DocValues.rSm),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Row(
-              children: [
-                Icon(Icons.search, size: 18, color: scheme.onSurface),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: TextField(
-                      onChanged: setSearchBarText,
-                      controller: searchBarController,
-                      maxLines: 1,
-                      cursorHeight: 20,
-                      keyboardType: TextInputType.text,
-                      textInputAction: TextInputAction.search,
-                      decoration: InputDecoration(
-                        hintText: 'Search Docs...',
-                        hintStyle: TextStyle(color: scheme.onSurfaceVariant),
-                        border: InputBorder.none,
-                        isDense: true,
-                        counterText: '',
-                      ),
+          padding: const EdgeInsets.all(DocValues.s15),
+          child: Row(
+            children: [
+              Icon(
+                Icons.search,
+                size: DocValues.iconSearch,
+                color: scheme.onSurface,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: DocValues.s2),
+                  child: TextField(
+                    onChanged: setSearchBarText,
+                    controller: searchBarController,
+                    maxLines: DocValues.maxLinesOne,
+                    cursorHeight: DocValues.cursorHeight,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: 'Search Docs...',
+                      hintStyle: TextStyle(color: scheme.onSurfaceVariant),
+                      border: InputBorder.none,
+                      isDense: true,
+                      counterText: '',
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],

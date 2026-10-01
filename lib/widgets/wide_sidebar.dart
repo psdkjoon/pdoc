@@ -27,10 +27,7 @@ class WideSidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      width: DocColors.sidebarWidth,
-      constraints: BoxConstraints(
-        minHeight: MediaQuery.of(context).size.height - kToolbarHeight,
-      ),
+      width: DocValues.sidebarWidth,
       decoration: BoxDecoration(
         color: scheme.surfaceContainer,
         border: Border(right: BorderSide(color: scheme.outlineVariant)),

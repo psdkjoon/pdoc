@@ -7,23 +7,63 @@ typedef Docs = List<Doc>;
 
 final docsNotifier = ValueNotifier<Docs>([]);
 
+final docsLoadingNotifier = ValueNotifier<bool>(true);
+
 const docMetaKeys = {'title', 'description', 'tags'};
 
+const _docsAssetPrefix = 'assets/data';
+const _docsAssetSuffix = '.json';
+
 Future<void> loadDocsIntoCache() async {
-  docsNotifier.value = await docsLoader();
+  try {
+    docsNotifier.value = await docsLoader();
+  } catch (error, stack) {
+    FlutterError.reportError(
+      FlutterErrorDetails(
+        exception: error,
+        stack: stack,
+        library: 'docs_controller',
+        context: ErrorDescription('while loading docs'),
+      ),
+    );
+  } finally {
+    docsLoadingNotifier.value = false;
+  }
 }
 
 Future<Docs> docsLoader() async {
-  final docs = <Doc>[];
   final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-  final paths = manifest.listAssets().where(
-    (file) => file.startsWith('assets/data') && file.endsWith('.json'),
-  );
-  for (final path in paths) {
+  final paths =
+      manifest
+          .listAssets()
+          .where(
+            (file) =>
+                file.startsWith(_docsAssetPrefix) &&
+                file.endsWith(_docsAssetSuffix),
+          )
+          .toList()
+        ..sort();
+
+  final loaded = await Future.wait(paths.map(_loadOne));
+  return loaded.whereType<Doc>().toList();
+}
+
+Future<Doc?> _loadOne(String path) async {
+  try {
     final raw = await rootBundle.loadString(path);
-    docs.add(pdataDecode(raw, PdataFormat.json) as Doc);
+    final decoded = pdataDecode(raw, PdataFormat.json) as Map<dynamic, dynamic>;
+    return Doc.from(decoded);
+  } catch (error, stack) {
+    FlutterError.reportError(
+      FlutterErrorDetails(
+        exception: error,
+        stack: stack,
+        library: 'docs_controller',
+        context: ErrorDescription('while loading $path'),
+      ),
+    );
+    return null;
   }
-  return docs;
 }
 
 List<String> docVersions(Doc doc) {

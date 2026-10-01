@@ -1,4 +1,5 @@
 import 'package:pdoc/markdown/markdown_inline.dart';
+import 'package:pdoc/src/theme.dart';
 
 enum MarkdownBlockType {
   h1,
@@ -47,7 +48,7 @@ class MarkdownBlock {
     this.tableRows,
     this.inlineSpans,
     this.headingSpans,
-    this.spacingAfter = 24,
+    this.spacingAfter = DocValues.s4,
   });
 
   factory MarkdownBlock.heading(MarkdownBlockType type, String text) =>
@@ -55,7 +56,7 @@ class MarkdownBlock {
         type: type,
         text: text,
         inlineSpans: MarkdownInlineParser.parse(text),
-        spacingAfter: 16,
+        spacingAfter: DocValues.s3,
       );
 
   factory MarkdownBlock.paragraph(String text) => MarkdownBlock._(
@@ -77,7 +78,7 @@ class MarkdownBlock {
       MarkdownBlock._(type: MarkdownBlockType.blockquote, text: text);
 
   factory MarkdownBlock.rule() =>
-      MarkdownBlock._(type: MarkdownBlockType.rule, spacingAfter: 16);
+      MarkdownBlock._(type: MarkdownBlockType.rule, spacingAfter: DocValues.s3);
 
   factory MarkdownBlock.image(String alt, String src) =>
       MarkdownBlock._(type: MarkdownBlockType.image, text: alt, lang: src);

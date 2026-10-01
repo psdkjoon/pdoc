@@ -8,6 +8,7 @@ import 'package:pdoc/src/theme.dart';
 import 'package:pdoc/widgets/app_footer.dart';
 import 'package:pdoc/widgets/bread_crumbs.dart';
 import 'package:pdoc/widgets/doc_prev_next_nav.dart';
+import 'package:pdoc/widgets/fit_text.dart';
 import 'package:pdoc/widgets/link_confirm_dialog.dart';
 
 class MarkdownScrollView extends StatelessWidget {
@@ -59,7 +60,7 @@ class MarkdownScrollView extends StatelessWidget {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         const SnackBar(
           content: Text("Couldn't find that page"),
-          duration: Duration(seconds: 2),
+          duration: DocValues.toast,
         ),
       );
       return;
@@ -87,36 +88,42 @@ class MarkdownScrollView extends StatelessWidget {
             child: SingleChildScrollView(
               controller: controller,
               padding: EdgeInsets.symmetric(
-                horizontal: isWide ? 48 : 16,
-                vertical: 32,
+                horizontal: isWide
+                    ? DocValues.docPadWide
+                    : DocValues.docPadCompact,
+                vertical: DocValues.s5,
               ),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
-                    maxWidth: DocColors.maxDocWidth,
+                    maxWidth: DocValues.maxDocWidth,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       DocBreadcrumb(args: args, section: currentSection),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: DocValues.s28),
                       ValueListenableBuilder<DocFontSize>(
                         valueListenable: fontSizeNotifier,
                         builder: (context, fontSize, _) {
                           final scale =
-                              fontSize.bodyFontSize / MarkdownView.baseFontSize;
+                              fontSize.bodyFontSize / DocValues.readerBase;
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                currentPage,
-                                style: TextStyle(
-                                  fontSize: 40 * scale,
-                                  fontWeight: FontWeight.bold,
-                                  color: scheme.onSurface,
+                              SizedBox(
+                                width: double.infinity,
+                                child: WrapText(
+                                  currentPage,
+                                  style: TextStyle(
+                                    fontSize: DocValues.fsPageTitle * scale,
+                                    fontWeight: DocValues.fwBold,
+                                    height: DocValues.lhTight,
+                                    color: scheme.onSurface,
+                                  ),
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: DocValues.s4),
                               MarkdownView(
                                 source:
                                     args.sections[currentSection]?[currentPage] ??
@@ -129,13 +136,13 @@ class MarkdownScrollView extends StatelessWidget {
                           );
                         },
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: DocValues.s4),
                       DocPrevNextNav(
                         pages: flatPages,
                         current: (currentSection, currentPage),
                         onSelect: goTo,
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: DocValues.s4),
                     ],
                   ),
                 ),

@@ -8,9 +8,10 @@ import 'package:pdoc/markdown/markdown_inline_text.dart';
 import 'package:pdoc/markdown/markdown_link_card.dart';
 import 'package:pdoc/markdown/markdown_list_block.dart';
 import 'package:pdoc/markdown/markdown_table_block.dart';
+import 'package:pdoc/src/theme.dart';
 
 class MarkdownView extends StatelessWidget {
-  static const double baseFontSize = 18;
+  static const double baseFontSize = DocValues.readerBase;
 
   final String source;
   final double bodyFontSize;
@@ -38,7 +39,7 @@ class MarkdownView extends StatelessWidget {
         );
       case MarkdownBlockType.h2:
         return Padding(
-          padding: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: DocValues.s2),
           child: MarkdownInlineText(
             spans: block.inlineSpans!,
             baseStyle: textTheme.headlineSmall!.copyWith(
@@ -65,7 +66,7 @@ class MarkdownView extends StatelessWidget {
         return MarkdownCodeBlock(
           code: block.text,
           language: block.lang,
-          fontSize: 14 * scale,
+          fontSize: DocValues.fsBody2 * scale,
         );
       case MarkdownBlockType.list:
         return MarkdownListBlock(
@@ -77,7 +78,7 @@ class MarkdownView extends StatelessWidget {
         return MarkdownTableBlock(
           rows: block.tableRows!,
           onLinkTap: onLinkTap,
-          fontSize: 15 * scale,
+          fontSize: DocValues.fsBody * scale,
         );
       case MarkdownBlockType.blockquote:
         return MarkdownBlockQuote(
@@ -88,8 +89,8 @@ class MarkdownView extends StatelessWidget {
       case MarkdownBlockType.rule:
         return Divider(
           color: Theme.of(context).colorScheme.outlineVariant,
-          thickness: 1,
-          height: 1,
+          thickness: DocValues.borderThin,
+          height: DocValues.borderThin,
         );
       case MarkdownBlockType.image:
         return MarkdownImageBlock(alt: block.text, src: block.lang ?? '');
@@ -98,8 +99,8 @@ class MarkdownView extends StatelessWidget {
           headingSpans: block.headingSpans!,
           bodySpans: block.inlineSpans!,
           onTap: () => onLinkTap?.call(block.lang ?? ''),
-          headingFontSize: 17 * scale,
-          bodyFontSize: 15 * scale,
+          headingFontSize: DocValues.fsTitleSm * scale,
+          bodyFontSize: DocValues.fsBody * scale,
         );
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pdoc/src/theme.dart';
+import 'package:pdoc/widgets/fit_text.dart';
 
 class DocPrevNextNav extends StatelessWidget {
   final List<(String, String)> pages;
@@ -21,30 +22,54 @@ class DocPrevNextNav extends StatelessWidget {
         ? pages[index + 1]
         : null;
 
-    return Row(
-      children: [
-        if (previous != null)
-          Expanded(
-            child: _NavCard(
-              target: previous,
-              isPrevious: true,
-              onTap: onSelect,
-            ),
-          )
-        else
-          const Spacer(),
-        const SizedBox(width: 16),
-        if (next != null)
-          Expanded(
-            child: _NavCard(
-              target: next,
-              isPrevious: false,
-              onTap: onSelect,
-            ),
-          )
-        else
-          const Spacer(),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stacked = constraints.maxWidth < DocValues.mediumBreakpoint;
+        final cards = <Widget>[
+          if (previous != null)
+            _NavCard(target: previous, isPrevious: true, onTap: onSelect),
+          if (next != null)
+            _NavCard(target: next, isPrevious: false, onTap: onSelect),
+        ];
+
+        if (stacked) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < cards.length; i++) ...[
+                if (i > 0) const SizedBox(height: DocValues.s3),
+                cards[i],
+              ],
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            if (previous != null)
+              Expanded(
+                child: _NavCard(
+                  target: previous,
+                  isPrevious: true,
+                  onTap: onSelect,
+                ),
+              )
+            else
+              const Spacer(),
+            const SizedBox(width: DocValues.s3),
+            if (next != null)
+              Expanded(
+                child: _NavCard(
+                  target: next,
+                  isPrevious: false,
+                  onTap: onSelect,
+                ),
+              )
+            else
+              const Spacer(),
+          ],
+        );
+      },
     );
   }
 }
@@ -70,80 +95,106 @@ class _NavCardState extends State<_NavCard> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final shift = widget.isPrevious ? -1.0 : 1.0;
+    final shift = widget.isPrevious
+        ? -DocValues.hoverNudge
+        : DocValues.hoverNudge;
+    final align = widget.isPrevious ? TextAlign.start : TextAlign.end;
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: () => widget.onTap(widget.target.$1, widget.target.$2),
-        child: AnimatedContainer(
-          duration: DocColors.fast,
-          curve: DocColors.curve,
-          transform: Matrix4.translationValues(_hovered ? shift * 3 : 0, 0, 0),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: scheme.surfaceContainer,
-            border: Border.all(
-              color: _hovered ? scheme.primary : scheme.outlineVariant,
-              width: _hovered ? 1.5 : 1,
+    return Semantics(
+      button: true,
+      label: '${widget.isPrevious ? 'Previous' : 'Next'}: ${widget.target.$2}',
+      excludeSemantics: true,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => widget.onTap(widget.target.$1, widget.target.$2),
+          child: AnimatedContainer(
+            duration: DocValues.fast,
+            curve: DocValues.curve,
+            transform: Matrix4.translationValues(
+              _hovered ? shift : DocValues.s0,
+              DocValues.s0,
+              DocValues.s0,
             ),
-            borderRadius: BorderRadius.circular(DocColors.sm),
-            boxShadow: _hovered
-                ? [
-                    BoxShadow(
-                      color: scheme.primary.withValues(alpha: 0.18),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : const [],
-          ),
-          child: Column(
-            crossAxisAlignment: widget.isPrevious
-                ? CrossAxisAlignment.start
-                : CrossAxisAlignment.end,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.isPrevious)
-                    Icon(
-                      Icons.arrow_back_rounded,
-                      size: 13,
-                      color: scheme.primary,
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      widget.isPrevious ? 'Previous' : 'Next',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
-                        color: scheme.onSurfaceVariant,
+            padding: const EdgeInsets.all(DocValues.s3),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainer,
+              border: Border.all(
+                color: _hovered ? scheme.primary : scheme.outlineVariant,
+                width: _hovered
+                    ? DocValues.borderThickHover
+                    : DocValues.borderThin,
+              ),
+              borderRadius: BorderRadius.circular(DocValues.sm),
+              boxShadow: _hovered
+                  ? [
+                      BoxShadow(
+                        color: scheme.primary.withValues(
+                          alpha: DocValues.alphaShadowSoft,
+                        ),
+                        blurRadius: DocValues.liftBlur,
+                        offset: const Offset(
+                          DocValues.s0,
+                          DocValues.liftOffsetY,
+                        ),
+                      ),
+                    ]
+                  : const [],
+            ),
+            child: Column(
+              crossAxisAlignment: widget.isPrevious
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.end,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.isPrevious)
+                      Icon(
+                        Icons.arrow_back_rounded,
+                        size: DocValues.iconTiny,
+                        color: scheme.primary,
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: DocValues.s1,
+                      ),
+                      child: Text(
+                        widget.isPrevious ? 'Previous' : 'Next',
+                        style: TextStyle(
+                          fontSize: DocValues.fsMicro,
+                          fontWeight: DocValues.fwSemi,
+                          letterSpacing: DocValues.lsWide,
+                          color: scheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
-                  ),
-                  if (!widget.isPrevious)
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      size: 13,
-                      color: scheme.primary,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                widget.target.$2,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: _hovered ? scheme.primary : scheme.onSurface,
+                    if (!widget.isPrevious)
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: DocValues.iconTiny,
+                        color: scheme.primary,
+                      ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: DocValues.s1),
+                SizedBox(
+                  width: double.infinity,
+                  child: WrapText(
+                    widget.target.$2,
+                    textAlign: align,
+                    style: TextStyle(
+                      fontSize: DocValues.fsBody,
+                      fontWeight: DocValues.fwBold,
+                      color: _hovered ? scheme.primary : scheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

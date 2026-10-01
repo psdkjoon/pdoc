@@ -13,86 +13,93 @@ class AppFooter extends StatefulWidget {
 class _AppFooterState extends State<AppFooter> {
   bool _hovered = false;
 
-  static const _nameStyle = TextStyle(
-    fontSize: 13,
-    fontWeight: FontWeight.w700,
-    color: Colors.white,
-  );
-
-  double get _nameWidth {
-    final painter = TextPainter(
-      text: const TextSpan(text: 'Hossein', style: _nameStyle),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    return painter.width;
-  }
+  static const _lead = 'Made by ';
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final gradient = LinearGradient(colors: [scheme.primary, scheme.secondary]);
+    final leadStyle = TextStyle(
+      fontSize: DocValues.fsSmall,
+      color: scheme.onSurfaceVariant,
+    );
+    final nameStyle = TextStyle(
+      fontSize: DocValues.fsSmall,
+      fontWeight: DocValues.fwBold,
+      color: scheme.onSurface,
+    );
 
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: scheme.outline, width: 3)),
+        border: Border(
+          top: BorderSide(color: scheme.outline, width: DocValues.borderThick),
+        ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Center(
+      padding: const EdgeInsets.symmetric(
+        vertical: DocValues.s25,
+        horizontal: DocValues.s3,
+      ),
+      child: Center(
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => showExternalLinkDialog(context, githubPageUrl),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              textBaseline: TextBaseline.alphabetic,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text(
-                  'Made by ',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  onEnter: (_) => setState(() => _hovered = true),
-                  onExit: (_) => setState(() => _hovered = false),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      ShaderMask(
-                        blendMode: BlendMode.srcIn,
-                        shaderCallback: (bounds) =>
-                            gradient.createShader(bounds),
-                        child: const Text('Hossein', style: _nameStyle),
+                Text(_lead, style: leadStyle),
+                Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: DocValues.sPx3 + DocValues.accentBar,
                       ),
-                      const SizedBox(height: 3),
-                      SizedBox(
-                        height: 2,
-                        width: _nameWidth,
-                        child: TweenAnimationBuilder<double>(
-                          tween: Tween(begin: 0, end: _hovered ? 1.0 : 0.0),
-                          duration: DocColors.slow,
-                          curve: DocColors.curve,
-                          builder: (context, value, child) => Align(
-                            alignment: Alignment.center,
-                            child: SizedBox(
-                              width: _nameWidth * value,
-                              height: 2,
+                      child: ShaderMask(
+                        blendMode: BlendMode.srcIn,
+                        shaderCallback: gradient.createShader,
+                        child: Text(
+                          DocValues.authorName,
+                          textAlign: TextAlign.center,
+                          style: nameStyle.copyWith(color: scheme.onSurface),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: DocValues.s0,
+                      right: DocValues.s0,
+                      bottom: DocValues.s0,
+                      height: DocValues.accentBar,
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween(
+                          begin: DocValues.alphaZero,
+                          end: _hovered
+                              ? DocValues.scaleUnit
+                              : DocValues.alphaZero,
+                        ),
+                        duration: DocValues.slow,
+                        curve: DocValues.curve,
+                        builder: (context, value, child) =>
+                            FractionallySizedBox(
+                              widthFactor: value,
                               child: child,
                             ),
-                          ),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: gradient,
-                              borderRadius: BorderRadius.circular(1),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: gradient,
+                            borderRadius: BorderRadius.circular(
+                              DocValues.sHair,
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

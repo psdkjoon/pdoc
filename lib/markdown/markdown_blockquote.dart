@@ -19,17 +19,19 @@ class MarkdownBlockQuote extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Container(
-      clipBehavior: Clip.antiAlias,
-      padding: const EdgeInsets.all(DocColors.s3),
+      width: double.infinity,
+      padding: const EdgeInsets.all(DocValues.s3),
       decoration: BoxDecoration(
         color: scheme.surfaceContainer,
         border: Border.all(color: scheme.outlineVariant),
-        borderRadius: BorderRadius.circular(DocColors.lg),
+        borderRadius: BorderRadius.circular(DocValues.lg),
       ),
       child: Container(
-        padding: const EdgeInsets.only(left: DocColors.s3),
+        padding: const EdgeInsets.only(left: DocValues.s3),
         decoration: BoxDecoration(
-          border: Border(left: BorderSide(color: scheme.primary, width: 3)),
+          border: Border(
+            left: BorderSide(color: scheme.primary, width: DocValues.quoteBar),
+          ),
         ),
         child: MarkdownInlineText(
           spans: MarkdownInlineParser.parse(text),

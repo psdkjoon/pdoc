@@ -24,26 +24,76 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
 
   Future<void> _copyCode() async {
     await Clipboard.setData(ClipboardData(text: widget.code));
+    if (!mounted) return;
     setState(() => _copied = true);
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _copied = false);
-    });
+    await Future<void>.delayed(DocValues.toast);
+    if (mounted) setState(() => _copied = false);
   }
 
-  Color _tokenColor(SyntaxTokenType type, ColorScheme scheme) {
+  TextStyle _tokenStyle(
+    SyntaxTokenType type,
+    ColorScheme scheme,
+    TextStyle base,
+  ) {
     switch (type) {
       case SyntaxTokenType.keyword:
-        return scheme.primary;
+        return base.copyWith(
+          color: scheme.primary,
+          fontWeight: DocValues.fwBold,
+        );
       case SyntaxTokenType.string:
-        return scheme.secondary;
+        return base.copyWith(color: scheme.secondary);
+      case SyntaxTokenType.escape:
+        return base.copyWith(
+          color: scheme.tertiary,
+          fontWeight: DocValues.fwBold,
+        );
+      case SyntaxTokenType.interpolation:
+        return base.copyWith(
+          color: scheme.tertiary,
+          backgroundColor: scheme.tertiary.withValues(
+            alpha: DocValues.alphaFocus,
+          ),
+        );
       case SyntaxTokenType.comment:
-        return scheme.outline;
+        return base.copyWith(
+          color: scheme.outline,
+          fontStyle: FontStyle.italic,
+        );
+      case SyntaxTokenType.docComment:
+        return base.copyWith(
+          color: scheme.onSurfaceVariant,
+          fontStyle: FontStyle.italic,
+        );
       case SyntaxTokenType.number:
-        return scheme.tertiary;
+      case SyntaxTokenType.constant:
+        return base.copyWith(color: scheme.tertiary);
       case SyntaxTokenType.type:
+        return base.copyWith(
+          color: scheme.primaryContainer,
+          fontWeight: DocValues.fwMedium,
+        );
+      case SyntaxTokenType.function:
+        return base.copyWith(
+          color: scheme.onSurface,
+          fontWeight: DocValues.fwBold,
+        );
+      case SyntaxTokenType.annotation:
+        return base.copyWith(
+          color: scheme.secondary,
+          fontStyle: FontStyle.italic,
+        );
+      case SyntaxTokenType.property:
+        return base.copyWith(color: scheme.primary);
+      case SyntaxTokenType.variable:
+        return base.copyWith(color: scheme.tertiary);
+      case SyntaxTokenType.flag:
+        return base.copyWith(color: scheme.secondary);
+      case SyntaxTokenType.operator:
       case SyntaxTokenType.punctuation:
+        return base.copyWith(color: scheme.onSurfaceVariant);
       case SyntaxTokenType.plain:
-        return scheme.onSurface;
+        return base.copyWith(color: scheme.onSurface);
     }
   }
 
@@ -52,71 +102,80 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
     final scheme = Theme.of(context).colorScheme;
     final tokens = SyntaxHighlighter.highlight(widget.code, widget.language);
     final baseStyle = TextStyle(
-      fontFamily: DocColors.mono,
+      fontFamily: DocValues.mono,
       fontSize: widget.fontSize,
-      height: 1.5,
+      height: DocValues.lhCode,
     );
+    final labelSize = widget.fontSize / DocValues.codeLabelRatio;
+    final language = (widget.language?.isNotEmpty ?? false)
+        ? widget.language!
+        : 'text';
 
     return Container(
-      clipBehavior: Clip.antiAlias,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHigh,
-        border: Border.all(color: scheme.outlineVariant, width: 2),
-        borderRadius: BorderRadius.circular(DocColors.lg),
+        border: Border.all(
+          color: scheme.outlineVariant,
+          width: DocValues.borderMed,
+        ),
+        borderRadius: BorderRadius.circular(DocValues.lg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.symmetric(
-              horizontal: DocColors.s3,
-              vertical: DocColors.s2,
+              horizontal: DocValues.s3,
+              vertical: DocValues.s2,
             ),
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: scheme.outlineVariant, width: 2)),
+              border: Border(
+                bottom: BorderSide(
+                  color: scheme.outlineVariant,
+                  width: DocValues.borderMed,
+                ),
+              ),
             ),
-            width: double.infinity,
             child: Row(
               children: [
                 Expanded(
                   child: Text(
-                    (widget.language?.isNotEmpty ?? false)
-                        ? widget.language!
-                        : 'text',
+                    language,
+                    maxLines: DocValues.maxLinesOne,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: DocColors.mono,
-                      fontSize: (widget.fontSize / 0.8),
+                      fontFamily: DocValues.mono,
+                      fontSize: labelSize,
                       color: scheme.outline,
-                      letterSpacing: 0.5,
+                      letterSpacing: DocValues.lsMono,
                     ),
                   ),
                 ),
-                Material(
-                  color: Colors.transparent,
-                  child: IconButton(
-                    onPressed: _copyCode,
-                    tooltip: _copied ? 'Copied' : 'Copy code',
-                    constraints: const BoxConstraints(
-                      minWidth: DocColors.s6,
-                      minHeight: DocColors.s6,
+                IconButton(
+                  onPressed: _copyCode,
+                  tooltip: _copied ? 'Copied' : 'Copy code',
+                  constraints: const BoxConstraints(
+                    minWidth: DocValues.s6,
+                    minHeight: DocValues.s6,
+                  ),
+                  style: IconButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(DocValues.sm),
                     ),
-                    style: IconButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(DocColors.sm),
-                      ),
-                    ),
-                    icon: Icon(
-                      _copied ? Icons.check : Icons.copy_rounded,
-                      size: (widget.fontSize / 0.8),
-                      color: _copied ? scheme.primary : scheme.onSurfaceVariant,
-                    ),
+                  ),
+                  icon: Icon(
+                    _copied ? Icons.check : Icons.copy_rounded,
+                    size: labelSize,
+                    color: _copied ? scheme.primary : scheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(DocColors.s3),
+            padding: const EdgeInsets.all(DocValues.s3),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SelectableText.rich(
@@ -125,9 +184,7 @@ class _MarkdownCodeBlockState extends State<MarkdownCodeBlock> {
                     for (final token in tokens)
                       TextSpan(
                         text: token.text,
-                        style: baseStyle.copyWith(
-                          color: _tokenColor(token.type, scheme),
-                        ),
+                        style: _tokenStyle(token.type, scheme, baseStyle),
                       ),
                   ],
                 ),

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 : "${APK_OUTPUT_DIR:?set APK_OUTPUT_DIR}"
@@ -10,14 +9,22 @@ set -euo pipefail
 : "${KEYSTORE_PASSWORD:?set KEYSTORE_PASSWORD}"
 : "${KEY_PASSWORD:?set KEY_PASSWORD}"
 
+PAGE_KB="${PAGE_KB:-16}"
+
+for tool in unzip zip; do
+    command -v "$tool" >/dev/null || { echo "missing tool: $tool" >&2; exit 1; }
+done
+
 run() {
     echo "\$ $*"
     "$@"
 }
 
-TMP_ROOT="$(mktemp -d /tmp/apk_fix_XXXXXX)"
+mb() { awk "BEGIN{printf \"%.1f\", $1/1e6}"; }
+
+TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/apk_fix_XXXXXX")"
+trap 'rm -rf "$TMP_ROOT"' EXIT
 echo "Working in: $TMP_ROOT"
-echo
 
 found_any=0
 
@@ -31,31 +38,35 @@ for src_apk in "$APK_OUTPUT_DIR"/app-*-release.apk; do
     echo
     echo "=== Processing $abi ($apk_name) ==="
     work_dir="$TMP_ROOT/$abi"
-    extracted_dir="$work_dir/extracted"
-    mkdir -p "$extracted_dir"
+    root_dir="$work_dir/root"
+    mkdir -p "$root_dir"
 
-    run 7z x "$(realpath "$src_apk")" -o"$extracted_dir"
+    patched_apk="$work_dir/patched.apk"
+    cp "$src_apk" "$patched_apk"
 
-    so_path="$extracted_dir/lib/$abi/libflutter.so"
-    if [[ ! -f "$so_path" ]]; then
-        echo "No libflutter.so found for $abi at $so_path, skipping strip."
-    else
+    lib_entry="lib/$abi/libflutter.so"
+    if unzip -Z1 "$src_apk" | grep -xF "$lib_entry" >/dev/null; then
+        run unzip -q -o "$src_apk" "$lib_entry" -d "$root_dir"
+        so_path="$root_dir/$lib_entry"
+
         before_size=$(stat -c%s "$so_path")
         run "$STRIP_TOOL" --strip-all "$so_path"
         after_size=$(stat -c%s "$so_path")
-        before_mb=$(awk "BEGIN{printf \"%.1f\", $before_size/1e6}")
-        after_mb=$(awk "BEGIN{printf \"%.1f\", $after_size/1e6}")
-        echo "Stripped libflutter.so: ${before_mb}MB -> ${after_mb}MB"
+        echo "Stripped libflutter.so: $(mb "$before_size")MB -> $(mb "$after_size")MB"
+
+        (cd "$root_dir" && run zip -0 -X -q "$patched_apk" "$lib_entry")
+    else
+        echo "No $lib_entry in $apk_name, skipping strip."
     fi
 
-    file_list="$work_dir/filelist.txt"
-    (cd "$extracted_dir" && find . -type f | sed 's|^\./||') >"$file_list"
-
-    repacked_apk="$work_dir/repacked.apk"
-    (cd "$extracted_dir" && run 7z a -tzip "$repacked_apk" -mx=0 "@$file_list")
+    rc=0
+    zip -q -d "$patched_apk" \
+        'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.DSA' 'META-INF/*.EC' \
+        'META-INF/MANIFEST.MF' >/dev/null || rc=$?
+    [[ $rc -eq 0 || $rc -eq 12 ]] || exit "$rc"
 
     aligned_apk="$work_dir/aligned.apk"
-    run "$BUILD_TOOLS_DIR/zipalign" -p 4 "$repacked_apk" "$aligned_apk"
+    run "$BUILD_TOOLS_DIR/zipalign" -f -P "$PAGE_KB" 4 "$patched_apk" "$aligned_apk"
 
     signed_apk="$APK_OUTPUT_DIR/${apk_name%.apk}-stripped-signed.apk"
     run "$BUILD_TOOLS_DIR/apksigner" sign \
@@ -67,11 +78,10 @@ for src_apk in "$APK_OUTPUT_DIR"/app-*-release.apk; do
         "$aligned_apk"
 
     run "$BUILD_TOOLS_DIR/apksigner" verify "$signed_apk"
+    run "$BUILD_TOOLS_DIR/zipalign" -c -P "$PAGE_KB" 4 "$signed_apk"
 
-    final_size=$(stat -c%s "$signed_apk")
-    final_mb=$(awk "BEGIN{printf \"%.1f\", $final_size/1e6}")
     echo
-    echo "✓ Done: $signed_apk (${final_mb}MB)"
+    echo "✓ Done: $signed_apk ($(mb "$(stat -c%s "$signed_apk")")MB)"
 done
 
 if [[ "$found_any" -eq 0 ]]; then

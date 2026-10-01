@@ -37,12 +37,13 @@ class DocPage extends StatefulWidget {
 
 class _DocPageState extends State<DocPage> {
   final _scrollController = ScrollController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   late String currentVersion;
   late Map<String, Map<String, String>> sections;
   late String currentSection;
   late String currentPage;
   late Set<String> expandedSections;
-  late bool _sidebarOpen = true;
+  bool _sidebarOpen = true;
 
   @override
   void initState() {
@@ -83,9 +84,9 @@ class _DocPageState extends State<DocPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
-          0,
-          duration: DocColors.med,
-          curve: DocColors.curve,
+          DocValues.s0,
+          duration: DocValues.med,
+          curve: DocValues.curve,
         );
       }
     });
@@ -140,17 +141,18 @@ class _DocPageState extends State<DocPage> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isWide =
-        MediaQuery.of(context).size.width >= DocColors.wideBreakpoint;
+    final isWide = MediaQuery.sizeOf(context).width >= DocValues.wideBreakpoint;
     final args = _currentArgs;
 
     return Scaffold(
+      key: _scaffoldKey,
       resizeToAvoidBottomInset: false,
       appBar: DocAppBar(
         args: args,
         openSearch: _openSearch,
         toggleSidebar: _toggleSidebar,
         sidebarOpen: _sidebarOpen,
+        isWide: isWide,
       ),
       drawer: isWide
           ? null
@@ -165,14 +167,17 @@ class _DocPageState extends State<DocPage> {
                   onToggleSection: toggleSection,
                   onSelectPage: (section, page) {
                     goTo(section, page);
-                    Navigator.of(context).maybePop();
+                    _scaffoldKey.currentState?.closeDrawer();
                   },
-                  onChangeVersion: changeVersion,
+                  onChangeVersion: (version) {
+                    changeVersion(version);
+                    _scaffoldKey.currentState?.closeDrawer();
+                  },
                 ),
               ),
             ),
       body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (isWide && _sidebarOpen)
             WideSidebar(
@@ -191,7 +196,9 @@ class _DocPageState extends State<DocPage> {
                   child: Background(
                     accent: scheme.primary,
                     backgroundColor: scheme.surface,
-                    particleCount: isWide ? 120 : 50,
+                    particleCount: isWide
+                        ? DocValues.particlesDocWide
+                        : DocValues.particlesDocCompact,
                   ),
                 ),
                 MarkdownScrollView(

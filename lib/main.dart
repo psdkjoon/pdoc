@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdoc/logic/docs_controller.dart';
@@ -10,11 +11,15 @@ import 'package:pdoc/src/theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await loadThemeMode();
-  await loadFontSize();
-  unawaited(loadDocsIntoCache());
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const DocsApp());
+  unawaited(
+    Future.wait<void>([loadThemeMode(), loadFontSize(), loadDocsIntoCache()]),
+  );
+  if (!kIsWeb) {
+    unawaited(
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky),
+    );
+  }
 }
 
 class DocsApp extends StatelessWidget {
@@ -26,7 +31,7 @@ class DocsApp extends StatelessWidget {
       valueListenable: themeModeNotifier,
       builder: (context, mode, _) {
         return MaterialApp(
-          title: 'psdkjoon docs',
+          title: DocValues.appTitle,
           debugShowCheckedModeBanner: false,
           theme: lightTheme,
           darkTheme: darkTheme,

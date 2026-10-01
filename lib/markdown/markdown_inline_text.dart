@@ -22,18 +22,17 @@ class MarkdownInlineText extends StatefulWidget {
 }
 
 class _MarkdownInlineTextState extends State<MarkdownInlineText> {
-  final List<TapGestureRecognizer> _recognizers = [];
+  List<TapGestureRecognizer> _recognizers = [];
 
-  void _disposeRecognizers() {
-    for (final recognizer in _recognizers) {
+  void _disposeAll(List<TapGestureRecognizer> recognizers) {
+    for (final recognizer in recognizers) {
       recognizer.dispose();
     }
-    _recognizers.clear();
   }
 
   @override
   void dispose() {
-    _disposeRecognizers();
+    _disposeAll(_recognizers);
     super.dispose();
   }
 
@@ -46,7 +45,7 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
     var result = style;
     if (span.bold) {
       result = result.copyWith(
-        fontWeight: FontWeight.w700,
+        fontWeight: DocValues.fwBold,
         color: boldColor ?? result.color,
       );
     }
@@ -69,9 +68,13 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
 
   @override
   Widget build(BuildContext context) {
-    _disposeRecognizers();
     final scheme = Theme.of(context).colorScheme;
     final baseStyle = widget.baseStyle;
+
+    final previous = _recognizers;
+    final next = <TapGestureRecognizer>[];
+    WidgetsBinding.instance.addPostFrameCallback((_) => _disposeAll(previous));
+    _recognizers = next;
 
     return Text.rich(
       TextSpan(
@@ -92,7 +95,7 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
                 text: span.text,
                 style: _withExtraEmphasis(
                   baseStyle.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: DocValues.fwBold,
                     color: scheme.onSurface,
                   ),
                   span,
@@ -114,7 +117,7 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
                 text: span.text,
                 style: _withExtraEmphasis(
                   baseStyle.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: DocValues.fwBold,
                     fontStyle: FontStyle.italic,
                     color: scheme.onSurface,
                   ),
@@ -135,35 +138,28 @@ class _MarkdownInlineTextState extends State<MarkdownInlineText> {
                 ),
               );
             case MarkdownInlineType.code:
-              final codeStyle = _withExtraEmphasis(
-                baseStyle.copyWith(
-                  fontFamily: DocColors.mono,
-                  fontSize: baseStyle.fontSize! * 0.88,
-                  color: scheme.primaryContainer,
-                ),
-                span,
-              );
-              return WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: DocColors.s1),
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(DocColors.md),
+              return TextSpan(
+                text: span.text,
+                style: _withExtraEmphasis(
+                  baseStyle.copyWith(
+                    fontFamily: DocValues.mono,
+                    fontSize: baseStyle.fontSize! * DocValues.codeInlineRatio,
+                    color: scheme.primaryContainer,
+                    backgroundColor: scheme.surfaceContainerHigh,
                   ),
-                  child: Text(span.text, style: codeStyle),
+                  span,
                 ),
               );
             case MarkdownInlineType.link:
               final recognizer = TapGestureRecognizer()
                 ..onTap = () => widget.onLinkTap?.call(span.href ?? '');
-              _recognizers.add(recognizer);
+              next.add(recognizer);
               return TextSpan(
                 text: span.text,
                 style: _withExtraEmphasis(
                   baseStyle.copyWith(
                     color: scheme.primary,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: DocValues.fwSemi,
                     decoration: TextDecoration.underline,
                     decorationColor: scheme.primary,
                   ),

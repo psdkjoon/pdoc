@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:pdoc/src/theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<void> showExternalLinkDialog(BuildContext context, String href) async {
   final scheme = Theme.of(context).colorScheme;
@@ -11,17 +11,21 @@ Future<void> showExternalLinkDialog(BuildContext context, String href) async {
       return AlertDialog(
         backgroundColor: scheme.surfaceContainer,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(DocColors.sm),
+          borderRadius: BorderRadius.circular(DocValues.sm),
         ),
         title: const Text('Leave the app?'),
-        content: Text(
-          href,
-          style: TextStyle(
-            fontFamily: DocColors.mono,
-            fontSize: 13,
-            color: scheme.onSurfaceVariant,
+        content: SingleChildScrollView(
+          child: SelectableText(
+            href,
+            style: TextStyle(
+              fontFamily: DocValues.mono,
+              fontSize: DocValues.fsSmall,
+              color: scheme.onSurfaceVariant,
+            ),
           ),
         ),
+        actionsOverflowAlignment: OverflowBarAlignment.end,
+        actionsOverflowButtonSpacing: DocValues.s1,
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
@@ -37,10 +41,9 @@ Future<void> showExternalLinkDialog(BuildContext context, String href) async {
           FilledButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
-              await launchUrl(
-                Uri.parse(href),
-                mode: LaunchMode.externalApplication,
-              );
+              final uri = Uri.tryParse(href);
+              if (uri == null) return;
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
             },
             child: const Text('Open'),
           ),

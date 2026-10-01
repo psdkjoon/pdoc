@@ -1,4 +1,5 @@
 import 'package:pdoc/logic/docs_controller.dart';
+import 'package:pdoc/src/theme.dart';
 
 class ResolvedDocLink {
   final Doc doc;
@@ -81,7 +82,7 @@ Doc? _findDoc(String target, List<Doc> allDocs) {
       best = candidate;
     }
   }
-  return bestScore >= 0.5 ? best : null;
+  return bestScore >= DocValues.linkMatchThreshold ? best : null;
 }
 
 ResolvedDocLink? resolveInternalLink(
@@ -189,7 +190,7 @@ ResolvedDocLink? resolveInternalLink(
         }
       }
     }
-    if (best != null && bestScore >= 0.5) {
+    if (best != null && bestScore >= DocValues.linkMatchThreshold) {
       return ResolvedDocLink(
         doc: doc,
         version: version,

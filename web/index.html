@@ -1,31 +1,183 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#14110C">
-  <meta name="description" content="Documentation for psdk's tools and guides — git, ffmpeg, ImageMagick, and Dart packages including pdata, penv, ptgb, and ptgc.">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-  <meta name="mobile-web-app-capable" content="yes">
+  <!-- ── Primary SEO ─────────────────────────────────────────────────── -->
+  <title>psdkjoon Docs — Documentation for psdkjoon's apps and programming projects</title>
+  <meta name="description" content="Searchable, versioned documentation for psdkjoon's apps and programming projects. Guides, references and code examples, all in one place.">
+  <meta name="author" content="Hossein (psdkjoon)">
+  <meta name="keywords" content="psdkjoon, documentation, docs, dart, flutter, programming, guides, reference, open source">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <link rel="canonical" href="https://doc.psdkjoon.ir/">
 
+  <!-- ── Open Graph ──────────────────────────────────────────────────── -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="pdoc — psdk's documentation">
-  <meta property="og:description" content="Documentation for psdk's tools and guides — git, ffmpeg, ImageMagick, and Dart packages including pdata, penv, ptgb, and ptgc.">
-  <meta property="og:image" content="assets/assets/images/social-preview.webp">
+  <meta property="og:site_name" content="psdkjoon Docs">
+  <meta property="og:title" content="psdkjoon Docs — Documentation for apps and programming projects">
+  <meta property="og:description" content="Searchable, versioned documentation for psdkjoon's apps and programming projects.">
+  <meta property="og:url" content="https://doc.psdkjoon.ir/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://doc.psdkjoon.ir/assets/images/social-preview.webp">
+  <meta property="og:image:secure_url" content="https://doc.psdkjoon.ir/assets/images/social-preview.webp">
+  <meta property="og:image:type" content="image/webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="psdkjoon Docs — searchable documentation for apps and programming projects">
+
+  <!-- ── Twitter / X ─────────────────────────────────────────────────── -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="pdoc — psdk's documentation">
-  <meta name="twitter:description" content="Documentation for psdk's tools and guides — git, ffmpeg, ImageMagick, and Dart packages including pdata, penv, ptgb, and ptgc.">
-  <meta name="twitter:image" content="assets/assets/images/social-preview.webp">
+  <meta name="twitter:title" content="psdkjoon Docs — Documentation for apps and programming projects">
+  <meta name="twitter:description" content="Searchable, versioned documentation for psdkjoon's apps and programming projects.">
+  <meta name="twitter:image" content="https://doc.psdkjoon.ir/assets/images/social-preview.webp">
+  <meta name="twitter:image:alt" content="psdkjoon Docs — searchable documentation for apps and programming projects">
 
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>pdoc — psdk's documentation</title>
+  <!-- ── App / PWA ───────────────────────────────────────────────────── -->
+  <meta name="application-name" content="psdkjoon Docs">
+  <meta name="apple-mobile-web-app-title" content="psdkjoon Docs">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#14110C" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FAF6EC" media="(prefers-color-scheme: light)">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/webp" href="assets/images/icon-192.webp">
+  <link rel="apple-touch-icon" href="assets/images/icon-192.webp">
+
+  <!-- ── Structured data ─────────────────────────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://doc.psdkjoon.ir/#website",
+        "url": "https://doc.psdkjoon.ir/",
+        "name": "psdkjoon Docs",
+        "description": "Searchable, versioned documentation for psdkjoon's apps and programming projects.",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://doc.psdkjoon.ir/#author" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://doc.psdkjoon.ir/#author",
+        "name": "Hossein",
+        "alternateName": "psdkjoon",
+        "url": "https://github.com/psdkjoon",
+        "sameAs": ["https://github.com/psdkjoon"]
+      },
+      {
+        "@type": "TechArticle",
+        "@id": "https://doc.psdkjoon.ir/#docs",
+        "headline": "psdkjoon Docs",
+        "image": "https://doc.psdkjoon.ir/assets/images/social-preview.webp",
+        "author": { "@id": "https://doc.psdkjoon.ir/#author" },
+        "isPartOf": { "@id": "https://doc.psdkjoon.ir/#website" },
+        "inLanguage": "en"
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preload" href="flutter_bootstrap.js" as="script">
+  <link rel="preload" href="assets/assets/fonts/SpaceGrotesk-Medium.ttf" as="font" type="font/ttf" crossorigin>
+
+  <style>
+    :root {
+      --bg: #14110C; --fg: #E9DFC8; --muted: #A8987A; --accent: #D4A857;
+      --border: #332918;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #FAF6EC; --fg: #2B2417; --muted: #6B5D45; --accent: #9C6B2E;
+        --border: #E2D5B8;
+      }
+    }
+    html, body {
+      margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+      font-family: "Space Grotesk", system-ui, -apple-system, "Segoe UI",
+                   Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    #splash {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 1.25rem; padding: 1.5rem;
+      box-sizing: border-box; text-align: center; background: var(--bg);
+      transition: opacity .3s ease-out;
+    }
+    #splash.done { opacity: 0; pointer-events: none; }
+    #splash img { width: 72px; height: 72px; border-radius: 16px; }
+    #splash h1 {
+      margin: 0; font-size: clamp(1.5rem, 6vw, 2.5rem); line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+    #splash p {
+      margin: 0; max-width: 32rem; color: var(--muted);
+      font-size: clamp(.875rem, 3.5vw, 1rem); line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+    .bar {
+      width: min(14rem, 60vw); height: 3px; border-radius: 3px;
+      background: var(--border); overflow: hidden;
+    }
+    .bar::after {
+      content: ""; display: block; width: 40%; height: 100%;
+      background: var(--accent); border-radius: 3px;
+      animation: slide 1.1s ease-in-out infinite;
+    }
+    @keyframes slide { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bar::after { animation: none; width: 100%; }
+      #splash { transition: none; }
+    }
+    .sr {
+      position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+  </style>
 </head>
 <body>
+  <div id="splash" role="status" aria-live="polite" aria-label="Loading psdkjoon Docs">
+    <img src="assets/images/icon-192.webp" width="72" height="72" alt="" decoding="async" fetchpriority="high">
+    <h1>psdkjoon Docs</h1>
+    <p>Searchable documentation for apps and programming projects.</p>
+    <div class="bar" aria-hidden="true"></div>
+  </div>
+
+  <main class="sr">
+    <h1>psdkjoon Docs</h1>
+    <p>Searchable, versioned documentation for psdkjoon's apps and programming projects, with guides, references and code examples.</p>
+    <nav aria-label="Project links">
+      <a href="https://github.com/psdkjoon">Source code and projects on GitHub</a>
+    </nav>
+  </main>
+  <noscript>
+    <div style="position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:1.5rem;text-align:center;background:var(--bg);color:var(--fg)">
+      <p>psdkjoon Docs needs JavaScript to run. Please enable it and reload.</p>
+    </div>
+  </noscript>
+
+  <script>
+    (function () {
+      var splash = document.getElementById('splash');
+      var removed = false;
+      function hide() {
+        if (removed || !splash) return;
+        removed = true;
+        splash.classList.add('done');
+        setTimeout(function () { splash.remove(); }, 400);
+      }
+      window.addEventListener('flutter-first-frame', hide);
+      setTimeout(hide, 20000);
+    })();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

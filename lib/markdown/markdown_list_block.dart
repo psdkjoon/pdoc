@@ -20,8 +20,11 @@ class MarkdownListBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final markerWidth = (baseStyle.fontSize ?? 15) * 1.6;
-    const indentPerLevel = DocColors.s4;
+    final fontSize = baseStyle.fontSize ?? DocValues.fsBody;
+    final markerStyle = baseStyle.copyWith(
+      color: scheme.primary,
+      fontWeight: DocValues.fwSemi,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,26 +32,26 @@ class MarkdownListBlock extends StatelessWidget {
         for (final item in items)
           Padding(
             padding: EdgeInsets.only(
-              left: item.depth * indentPerLevel,
-              bottom: DocColors.s2,
+              left: item.depth * DocValues.s4,
+              bottom: DocValues.s2,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: markerWidth,
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: fontSize * DocValues.listMarkerEm,
+                  ),
                   child: Text(
                     item.ordered
                         ? '${item.number}.'
                         : _bulletGlyphs[item.depth % _bulletGlyphs.length],
                     textAlign: TextAlign.end,
-                    style: baseStyle.copyWith(
-                      color: scheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    softWrap: false,
+                    style: markerStyle,
                   ),
                 ),
-                const SizedBox(width: DocColors.s2),
+                const SizedBox(width: DocValues.s2),
                 Expanded(
                   child: MarkdownInlineText(
                     spans: item.inlineSpans,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pdoc/logic/docs_controller.dart';
 import 'package:pdoc/pages/doc_page.dart';
 import 'package:pdoc/src/theme.dart';
+import 'package:pdoc/widgets/fit_text.dart';
 import 'package:pdoc/widgets/version_selector.dart';
 
 class DocSidebar extends StatefulWidget {
@@ -34,23 +35,24 @@ class _DocSidebarState extends State<DocSidebar> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final versions = docVersions(widget.args.doc);
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(DocValues.s3),
       child: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(DocValues.s2),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (widget.args.version != '0.0.0') ...[
+                  if (versions.length > 1) ...[
                     VersionSelector(
                       currentVersion: widget.args.version,
-                      versions: docVersions(widget.args.doc),
+                      versions: versions,
                       onChanged: widget.onChangeVersion,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: DocValues.s4),
                   ],
                   for (final section in widget.args.sections.entries)
                     _SidebarSection(
@@ -66,38 +68,53 @@ class _DocSidebarState extends State<DocSidebar> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
+          const SizedBox(height: DocValues.s2),
+          Semantics(
+            button: true,
+            label: 'Back to main menu',
             child: MouseRegion(
               onEnter: (_) => setState(() => entered = true),
               onExit: (_) => setState(() => entered = false),
               cursor: SystemMouseCursors.click,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                transform: Matrix4.translationValues(0, entered ? -2 : 0, 0),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: scheme.surfaceContainer,
-                  border: Border.all(
-                    color: entered ? scheme.primary : scheme.outline,
-                    width: 2,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    Navigator.of(context).popUntil((route) => route.isFirst),
+                child: AnimatedContainer(
+                  duration: DocValues.hover,
+                  curve: DocValues.curveHover,
+                  transform: Matrix4.translationValues(
+                    DocValues.s0,
+                    entered ? DocValues.hoverLift : DocValues.s0,
+                    DocValues.s0,
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: entered
-                      ? [
-                          BoxShadow(
-                            color: scheme.primary.withValues(alpha: 0.4),
-                            blurRadius: 20,
-                            spreadRadius: 2,
-                          ),
-                        ]
-                      : [],
+                  padding: const EdgeInsets.all(DocValues.s3),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainer,
+                    border: Border.all(
+                      color: entered ? scheme.primary : scheme.outline,
+                      width: DocValues.borderMed,
+                    ),
+                    borderRadius: BorderRadius.circular(DocValues.rMd),
+                    boxShadow: entered
+                        ? [
+                            BoxShadow(
+                              color: scheme.primary.withValues(
+                                alpha: DocValues.alphaShadowStrong,
+                              ),
+                              blurRadius: DocValues.glowBlur,
+                              spreadRadius: DocValues.glowSpread,
+                            ),
+                          ]
+                        : const [],
+                  ),
+                  child: const Center(
+                    child: FitText(
+                      'Back To Main Menu',
+                      minFontSize: DocValues.fsFloor,
+                    ),
+                  ),
                 ),
-
-                child: Center(child: Text('Back To Main Menu')),
               ),
             ),
           ),
@@ -129,65 +146,70 @@ class _SidebarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final active = isOpen && title == currentSection;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: DocValues.s2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: onToggle,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isOpen && title == currentSection
-                            ? scheme.surfaceContainerHigh
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(DocColors.sm),
-                        border: Border(
-                          left: BorderSide(
-                            color: isOpen && title == currentSection
-                                ? scheme.primary
-                                : Colors.transparent,
-                            width: 2,
+          Semantics(
+            button: true,
+            expanded: isOpen,
+            label: title,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onToggle,
+              child: Padding(
+                padding: const EdgeInsets.all(DocValues.s2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: active
+                              ? scheme.surfaceContainerHigh
+                              : DocValues.transparent,
+                          borderRadius: BorderRadius.circular(DocValues.sm),
+                          border: Border(
+                            left: BorderSide(
+                              color: active
+                                  ? scheme.primary
+                                  : DocValues.transparent,
+                              width: DocValues.accentBar,
+                            ),
                           ),
                         ),
-                      ),
-                      child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                          horizontal: DocValues.s3,
+                          vertical: DocValues.s2,
                         ),
-                        child: Text(
+                        child: WrapText(
                           title,
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
+                            fontSize: DocValues.fsBodyLg,
+                            fontWeight: DocValues.fwBold,
                             color: scheme.onSurfaceVariant,
-                            letterSpacing: 0.4,
+                            letterSpacing: DocValues.lsLabel,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  AnimatedRotation(
-                    turns: isOpen ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 150),
-                    child: Icon(
-                      Icons.expand_more_rounded,
-                      size: 24,
-                      color: scheme.primary,
+                    AnimatedRotation(
+                      turns: isOpen ? DocValues.halfTurn : DocValues.s0,
+                      duration: DocValues.fast,
+                      child: Icon(
+                        Icons.expand_more_rounded,
+                        size: DocValues.iconGlyph,
+                        color: scheme.primary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
           AnimatedCrossFade(
-            duration: const Duration(milliseconds: 150),
+            duration: DocValues.fast,
             crossFadeState: isOpen
                 ? CrossFadeState.showFirst
                 : CrossFadeState.showSecond,
@@ -225,29 +247,40 @@ class _SidebarNavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(left: 30),
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          margin: const EdgeInsets.only(bottom: 2),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          decoration: BoxDecoration(
-            color: selected ? scheme.surfaceContainerHigh : Colors.transparent,
-            borderRadius: BorderRadius.circular(DocColors.sm),
-            border: Border(
-              left: BorderSide(
-                color: selected ? scheme.primary : Colors.transparent,
-                width: 2,
+      padding: const EdgeInsets.only(left: DocValues.sidebarIndent),
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: page,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: DocValues.fast,
+            margin: const EdgeInsets.only(bottom: DocValues.sPx2),
+            padding: const EdgeInsets.symmetric(
+              vertical: DocValues.s2,
+              horizontal: DocValues.s3,
+            ),
+            decoration: BoxDecoration(
+              color: selected
+                  ? scheme.surfaceContainerHigh
+                  : DocValues.transparent,
+              borderRadius: BorderRadius.circular(DocValues.sm),
+              border: Border(
+                left: BorderSide(
+                  color: selected ? scheme.primary : DocValues.transparent,
+                  width: DocValues.accentBar,
+                ),
               ),
             ),
-          ),
-          child: Text(
-            page,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected ? scheme.primary : scheme.onSurfaceVariant,
+            child: WrapText(
+              page,
+              style: TextStyle(
+                fontSize: DocValues.fsBody2,
+                fontWeight: selected ? DocValues.fwBold : DocValues.fwMedium,
+                color: selected ? scheme.primary : scheme.onSurfaceVariant,
+              ),
             ),
           ),
         ),

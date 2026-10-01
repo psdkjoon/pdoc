@@ -11,7 +11,7 @@ class MarkdownTableBlock extends StatelessWidget {
   const MarkdownTableBlock({
     super.key,
     required this.rows,
-    this.fontSize = 15,
+    this.fontSize = DocValues.fsBody,
     this.onLinkTap,
   });
 
@@ -23,7 +23,7 @@ class MarkdownTableBlock extends StatelessWidget {
 
   Widget _cell(String text, TextStyle style) {
     return Padding(
-      padding: const EdgeInsets.all(DocColors.s3),
+      padding: const EdgeInsets.all(DocValues.s3),
       child: MarkdownInlineText(
         spans: MarkdownInlineParser.parse(text),
         baseStyle: style,
@@ -45,42 +45,54 @@ class MarkdownTableBlock extends StatelessWidget {
     final bodyStyle = Theme.of(context).textTheme.bodyMedium!
         .copyWith(fontSize: fontSize);
     final headingStyle = bodyStyle.copyWith(
-      fontWeight: FontWeight.w700,
+      fontWeight: DocValues.fwBold,
       color: scheme.onSurface,
     );
 
-    return SizedBox(
-      width: double.infinity,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(DocColors.lg),
-        child: Container(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final minWidth = DocValues.tableMinColumn * columnCount;
+        final scrolls = constraints.maxWidth < minWidth;
+        final tableWidth = scrolls ? minWidth : constraints.maxWidth;
+
+        final table = Container(
+          width: tableWidth,
           decoration: BoxDecoration(
             border: Border.all(color: scheme.outlineVariant),
-            borderRadius: BorderRadius.circular(DocColors.lg),
+            borderRadius: BorderRadius.circular(DocValues.lg),
           ),
-          child: Table(
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            defaultColumnWidth: const FlexColumnWidth(),
-            border: TableBorder(
-              horizontalInside: BorderSide(color: scheme.outlineVariant),
-              verticalInside: BorderSide(color: scheme.outlineVariant),
-            ),
-            children: [
-              TableRow(
-                decoration: BoxDecoration(color: scheme.surfaceContainerHigh),
-                children: [
-                  for (final cell in header) _cell(cell, headingStyle),
-                ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(DocValues.lg),
+            child: Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              defaultColumnWidth: const FlexColumnWidth(),
+              border: TableBorder(
+                horizontalInside: BorderSide(color: scheme.outlineVariant),
+                verticalInside: BorderSide(color: scheme.outlineVariant),
               ),
-              for (final row in body)
+              children: [
                 TableRow(
-                  decoration: BoxDecoration(color: scheme.surfaceContainer),
-                  children: [for (final cell in row) _cell(cell, bodyStyle)],
+                  decoration: BoxDecoration(color: scheme.surfaceContainerHigh),
+                  children: [
+                    for (final cell in header) _cell(cell, headingStyle),
+                  ],
                 ),
-            ],
+                for (final row in body)
+                  TableRow(
+                    decoration: BoxDecoration(color: scheme.surfaceContainer),
+                    children: [for (final cell in row) _cell(cell, bodyStyle)],
+                  ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+
+        if (!scrolls) return table;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: table,
+        );
+      },
     );
   }
 }

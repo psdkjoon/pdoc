@@ -35,7 +35,6 @@ class MarkdownInlineSpan {
 }
 
 class MarkdownInlineParser {
-
   static List<MarkdownInlineSpan> parse(String text) {
     final spans = <MarkdownInlineSpan>[];
     var i = 0;

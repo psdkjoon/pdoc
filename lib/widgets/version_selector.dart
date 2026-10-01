@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pdoc/src/theme.dart';
+import 'package:pdoc/widgets/fit_text.dart';
 
 class VersionSelector extends StatefulWidget {
   final String currentVersion;
@@ -23,12 +24,11 @@ class _VersionSelectorState extends State<VersionSelector> {
 
   Future<void> _openMenu() async {
     final scheme = Theme.of(context).colorScheme;
-    final button =
-        _buttonKey.currentContext!.findRenderObject()! as RenderBox;
+    final button = _buttonKey.currentContext!.findRenderObject()! as RenderBox;
     final overlay =
         Overlay.of(context).context.findRenderObject()! as RenderBox;
     final topLeft = button.localToGlobal(
-      Offset(0, button.size.height + 6),
+      Offset(DocValues.s0, button.size.height + DocValues.s15),
       ancestor: overlay,
     );
     final bottomRight = button.localToGlobal(
@@ -42,12 +42,12 @@ class _VersionSelectorState extends State<VersionSelector> {
         topLeft.dx,
         topLeft.dy,
         overlay.size.width - bottomRight.dx,
-        0,
+        DocValues.s0,
       ),
       color: scheme.surfaceContainer,
-      surfaceTintColor: Colors.transparent,
+      surfaceTintColor: DocValues.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(DocColors.sm),
+        borderRadius: BorderRadius.circular(DocValues.sm),
         side: BorderSide(color: scheme.outlineVariant),
       ),
       items: [
@@ -57,12 +57,12 @@ class _VersionSelectorState extends State<VersionSelector> {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
+                  child: FitText(
                     'v$version',
                     style: TextStyle(
                       fontWeight: version == widget.currentVersion
-                          ? FontWeight.w700
-                          : FontWeight.w500,
+                          ? DocValues.fwBold
+                          : DocValues.fwMedium,
                       color: version == widget.currentVersion
                           ? scheme.primary
                           : scheme.onSurface,
@@ -70,7 +70,11 @@ class _VersionSelectorState extends State<VersionSelector> {
                   ),
                 ),
                 if (version == widget.currentVersion)
-                  Icon(Icons.check_rounded, size: 16, color: scheme.primary),
+                  Icon(
+                    Icons.check_rounded,
+                    size: DocValues.iconMedium,
+                    color: scheme.primary,
+                  ),
               ],
             ),
           ),
@@ -93,35 +97,42 @@ class _VersionSelectorState extends State<VersionSelector> {
         onTap: _openMenu,
         child: AnimatedContainer(
           key: _buttonKey,
-          duration: DocColors.fast,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          duration: DocValues.fast,
+          padding: const EdgeInsets.symmetric(
+            horizontal: DocValues.s3,
+            vertical: DocValues.s25,
+          ),
           decoration: BoxDecoration(
             color: scheme.surface,
-            borderRadius: BorderRadius.circular(DocColors.sm),
+            borderRadius: BorderRadius.circular(DocValues.sm),
             border: Border.all(
               color: _hovered ? scheme.primary : scheme.outlineVariant,
             ),
           ),
           child: Row(
             children: [
-              Icon(Icons.sell_outlined, size: 15, color: scheme.primary),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.sell_outlined,
+                size: DocValues.iconSmall,
+                color: scheme.primary,
+              ),
+              const SizedBox(width: DocValues.s2),
               Expanded(
-                child: Text(
+                child: FitText(
                   'v${widget.currentVersion}',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: DocValues.fsSmall,
                     color: scheme.onSurface,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: DocValues.fwSemi,
                   ),
                 ),
               ),
               AnimatedRotation(
-                turns: _hovered ? 0.5 : 0,
-                duration: DocColors.fast,
+                turns: _hovered ? DocValues.halfTurn : DocValues.s0,
+                duration: DocValues.fast,
                 child: Icon(
                   Icons.unfold_more_rounded,
-                  size: 15,
+                  size: DocValues.iconSmall,
                   color: scheme.onSurfaceVariant,
                 ),
               ),

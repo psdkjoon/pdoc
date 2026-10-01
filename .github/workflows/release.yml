@@ -2,6 +2,9 @@ name: Build & Release
 
 on:
   push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,7 +17,7 @@ env:
   NDK_VERSION: "28.2.13676358"
 
 jobs:
-  android:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,13 +26,35 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - name: Test
+        run: if [ -d test ]; then flutter test; else echo "no test/ directory, skipping"; fi
+
+  android:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
 
       - name: Install Android build-tools & NDK
         run: |
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          echo "ANDROID_HOME=$ANDROID_HOME"
           echo "Using sdkmanager: $SDKMANAGER"
-          "$SDKMANAGER" --version
           yes | "$SDKMANAGER" --licenses >/dev/null
           "$SDKMANAGER" \
             "build-tools;${{ env.BUILD_TOOLS_VERSION }}" \
@@ -56,7 +81,7 @@ jobs:
       - run: flutter pub get
 
       - name: Build split-per-ABI release APKs
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi --split-debug-info=build/symbols
 
       - name: Strip, zipalign & sign
         run: ./scripts/strip.sh
@@ -73,23 +98,32 @@ jobs:
         with:
           name: android-signed-apks
           path: build/app/outputs/flutter-apk/*-stripped-signed.apk
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-symbols
+          path: build/symbols
+          retention-days: 90
+          if-no-files-found: error
 
   linux:
-    runs-on: ubuntu-latest
+    needs: check
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Linux desktop & AppImage build deps
+      - name: Install Linux desktop build deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build libgtk-3-dev imagemagick
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
 
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
+          cache: true
 
-      - run: flutter config --enable-linux-desktop
       - run: flutter pub get
       - run: flutter build linux --release
 
@@ -97,14 +131,16 @@ jobs:
         run: ./scripts/appimage.sh
         env:
           BUNDLE_DIR: build/linux/x64/release/bundle
-          OUTPUT_DIR: ${{ github.workspace }}
+          OUTPUT_DIR: ${{ github.workspace }}/dist
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-appimage
-          path: "*.AppImage"
+          path: dist/*.AppImage
+          if-no-files-found: error
 
   web:
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -113,19 +149,24 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
+          cache: true
 
-      - run: flutter config --enable-web
       - run: flutter pub get
-      - run: flutter build web --release
+      - run: flutter build web --release --no-web-resources-cdn
 
       - uses: actions/upload-artifact@v4
         with:
           name: web-build
           path: build/web
+          if-no-files-found: error
 
   deploy-s3:
     needs: [web]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-s3
+      cancel-in-progress: false
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -136,11 +177,15 @@ jobs:
         run: sudo apt-get update -y && sudo apt-get install -y s3cmd
 
       - name: Write s3cmd config
+        env:
+          ARVAN_ACCESS_KEY: ${{ secrets.ARVAN_ACCESS_KEY }}
+          ARVAN_SECRET_KEY: ${{ secrets.ARVAN_SECRET_KEY }}
         run: |
+          umask 077
           cat > "$HOME/.s3cfg" <<EOF
           [default]
-          access_key = ${{ secrets.ARVAN_ACCESS_KEY }}
-          secret_key = ${{ secrets.ARVAN_SECRET_KEY }}
+          access_key = $ARVAN_ACCESS_KEY
+          secret_key = $ARVAN_SECRET_KEY
           host_base = https://s3.ir-thr-at1.arvanstorage.ir
           host_bucket = https://s3.ir-thr-at1.arvanstorage.ir
           use_https = True
@@ -153,12 +198,23 @@ jobs:
             --delete-removed \
             --guess-mime-type \
             --no-mime-magic \
+            --add-header="Cache-Control: no-cache" \
             web-build/ "s3://psdk-doc/"
 
   release:
     needs: [android, linux]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Move 'latest' tag to this commit
+        run: |
+          git tag -f latest "$GITHUB_SHA"
+          git push -f origin refs/tags/latest
+
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
@@ -169,6 +225,7 @@ jobs:
           tag_name: latest
           name: Latest build
           make_latest: true
+          fail_on_unmatched_files: true
           files: |
             artifacts/android-signed-apks/*.apk
             artifacts/linux-appimage/*.AppImage

@@ -1,4 +1,5 @@
 import 'package:pdoc/markdown/markdown_block.dart';
+import 'package:pdoc/src/theme.dart';
 
 class MarkdownBlockParser {
   static final _bulletMatch = RegExp(r'^(\s*)([-*+])\s+(.*)$');
@@ -228,7 +229,7 @@ class MarkdownBlockParser {
       if (char == ' ') {
         width++;
       } else if (char == '\t') {
-        width += 4;
+        width += DocValues.tabWidth;
       } else {
         break;
       }
@@ -239,6 +240,6 @@ class MarkdownBlockParser {
   static int _depthForIndent(String indent) {
     if (indent.isEmpty) return 0;
     final width = _indentWidth(indent);
-    return (width / 2).floor();
+    return (width / DocValues.indentPerLevel).floor();
   }
 }
