@@ -6,7 +6,7 @@ Route<T> docRoute<T>(WidgetBuilder builder) {
   return PageRouteBuilder<T>(
     transitionDuration: DocValues.pageIn,
     reverseTransitionDuration: DocValues.med,
-    pageBuilder: (context, _, __) => builder(context),
+    pageBuilder: (context, _, _) => builder(context),
     transitionsBuilder: (context, animation, secondary, child) {
       final curved = CurvedAnimation(
         parent: animation,

@@ -280,6 +280,7 @@ class SyntaxColors extends ThemeExtension<SyntaxColors> {
   final Color comment;
   final Color docComment;
   final Color number;
+  @override
   final Color type;
   final Color function;
   final Color annotation;
