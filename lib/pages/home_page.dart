@@ -6,6 +6,8 @@ import 'package:pdoc/widgets/app_footer.dart';
 import 'package:pdoc/widgets/background.dart';
 import 'package:pdoc/widgets/cards.dart';
 import 'package:pdoc/widgets/docs_appbar.dart';
+import 'package:pdoc/widgets/page_transition.dart';
+import 'package:pdoc/widgets/reveal.dart';
 import 'package:pdoc/widgets/titleandsearchbar.dart';
 
 class HomePage extends StatelessWidget {
@@ -19,8 +21,8 @@ class HomePage extends StatelessWidget {
     final firstPage = sections[firstSection]!.keys.first;
 
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) => DocPage(
+      docRoute<void>(
+        (context) => DocPage(
           args: DocPageArgs(
             doc: doc,
             projectTitle: doc['title'] as String,
@@ -74,7 +76,7 @@ class HomePage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const SizedBox(height: DocValues.s4),
-                        const TitleAndSearchBar(),
+                        const Reveal(dy: -10, child: TitleAndSearchBar()),
                         const SizedBox(height: DocValues.s2),
                         Expanded(
                           child: ValueListenableBuilder<bool>(

@@ -10,6 +10,7 @@ set -euo pipefail
 : "${KEY_PASSWORD:?set KEY_PASSWORD}"
 
 PAGE_KB="${PAGE_KB:-16}"
+APK_PREFIX="${APK_PREFIX:-pdoc}"
 
 for tool in unzip zip; do
     command -v "$tool" >/dev/null || { echo "missing tool: $tool" >&2; exit 1; }
@@ -28,11 +29,17 @@ echo "Working in: $TMP_ROOT"
 
 found_any=0
 
-for src_apk in "$APK_OUTPUT_DIR"/app-*-release.apk; do
+# Inputs : app-<abi>-release.apk (split-per-abi) and app-release.apk (universal)
+# Outputs: pdoc-<abi>.apk and pdoc-universal.apk
+for src_apk in "$APK_OUTPUT_DIR"/app-*release.apk; do
     [[ -f "$src_apk" ]] || continue
     apk_name="$(basename "$src_apk")"
-    abi="${apk_name#app-}"
-    abi="${abi%-release.apk}"
+    if [[ "$apk_name" == "app-release.apk" ]]; then
+        abi="universal"
+    else
+        abi="${apk_name#app-}"
+        abi="${abi%-release.apk}"
+    fi
     found_any=1
 
     echo
@@ -44,19 +51,22 @@ for src_apk in "$APK_OUTPUT_DIR"/app-*-release.apk; do
     patched_apk="$work_dir/patched.apk"
     cp "$src_apk" "$patched_apk"
 
-    lib_entry="lib/$abi/libflutter.so"
-    if unzip -Z1 "$src_apk" | grep -xF "$lib_entry" >/dev/null; then
-        run unzip -q -o "$src_apk" "$lib_entry" -d "$root_dir"
-        so_path="$root_dir/$lib_entry"
+    # A split APK holds one libflutter.so, the universal APK holds one per ABI.
+    mapfile -t lib_entries < <(unzip -Z1 "$src_apk" | grep -E '^lib/[^/]+/libflutter\.so$' || true)
+    if [[ ${#lib_entries[@]} -gt 0 ]]; then
+        for lib_entry in "${lib_entries[@]}"; do
+            run unzip -q -o "$src_apk" "$lib_entry" -d "$root_dir"
+            so_path="$root_dir/$lib_entry"
 
-        before_size=$(stat -c%s "$so_path")
-        run "$STRIP_TOOL" --strip-all "$so_path"
-        after_size=$(stat -c%s "$so_path")
-        echo "Stripped libflutter.so: $(mb "$before_size")MB -> $(mb "$after_size")MB"
+            before_size=$(stat -c%s "$so_path")
+            run "$STRIP_TOOL" --strip-all "$so_path"
+            after_size=$(stat -c%s "$so_path")
+            echo "Stripped $lib_entry: $(mb "$before_size")MB -> $(mb "$after_size")MB"
 
-        (cd "$root_dir" && run zip -0 -X -q "$patched_apk" "$lib_entry")
+            (cd "$root_dir" && run zip -0 -X -q "$patched_apk" "$lib_entry")
+        done
     else
-        echo "No $lib_entry in $apk_name, skipping strip."
+        echo "No libflutter.so in $apk_name, skipping strip."
     fi
 
     rc=0
@@ -68,7 +78,7 @@ for src_apk in "$APK_OUTPUT_DIR"/app-*-release.apk; do
     aligned_apk="$work_dir/aligned.apk"
     run "$BUILD_TOOLS_DIR/zipalign" -f -P "$PAGE_KB" 4 "$patched_apk" "$aligned_apk"
 
-    signed_apk="$APK_OUTPUT_DIR/${apk_name%.apk}-stripped-signed.apk"
+    signed_apk="$APK_OUTPUT_DIR/${APK_PREFIX}-${abi}.apk"
     run "$BUILD_TOOLS_DIR/apksigner" sign \
         --ks "$KEYSTORE_PATH" \
         --ks-key-alias "$KEY_ALIAS" \
@@ -85,9 +95,9 @@ for src_apk in "$APK_OUTPUT_DIR"/app-*-release.apk; do
 done
 
 if [[ "$found_any" -eq 0 ]]; then
-    echo "No app-*-release.apk files found in $APK_OUTPUT_DIR — did the build step run first?" >&2
+    echo "No app-*release.apk files found in $APK_OUTPUT_DIR — did the build step run first?" >&2
     exit 1
 fi
 
 echo
-echo "All done. Signed APKs are in $APK_OUTPUT_DIR with \"-stripped-signed\" suffix."
+echo "All done. Signed APKs are in $APK_OUTPUT_DIR as ${APK_PREFIX}-<abi>.apk (and ${APK_PREFIX}-universal.apk)."

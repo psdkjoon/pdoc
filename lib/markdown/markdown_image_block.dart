@@ -12,13 +12,20 @@ class MarkdownImageBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final isNetwork = src.startsWith('http://') || src.startsWith('https://');
     final scheme = Theme.of(context).colorScheme;
-    final radius = BorderRadius.circular(DocValues.lg);
+    final radius = BorderRadius.circular(DocValues.rCode);
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: scheme.surfaceContainer,
         borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: DocValues.shadowColor.withValues(alpha: 0.12),
+            blurRadius: 20,
+            offset: const Offset(DocValues.s0, DocValues.s1),
+          ),
+        ],
       ),
       foregroundDecoration: BoxDecoration(
         border: Border.all(color: scheme.outlineVariant),

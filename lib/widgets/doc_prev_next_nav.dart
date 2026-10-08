@@ -128,7 +128,7 @@ class _NavCardState extends State<_NavCard> {
                     ? DocValues.borderThickHover
                     : DocValues.borderThin,
               ),
-              borderRadius: BorderRadius.circular(DocValues.sm),
+              borderRadius: BorderRadius.circular(DocValues.rMd),
               boxShadow: _hovered
                   ? [
                       BoxShadow(

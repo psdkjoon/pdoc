@@ -48,7 +48,7 @@ class MarkdownBlock {
     this.tableRows,
     this.inlineSpans,
     this.headingSpans,
-    this.spacingAfter = DocValues.s4,
+    this.spacingAfter = DocValues.s4 + DocValues.s1,
   });
 
   factory MarkdownBlock.heading(MarkdownBlockType type, String text) =>
@@ -56,7 +56,7 @@ class MarkdownBlock {
         type: type,
         text: text,
         inlineSpans: MarkdownInlineParser.parse(text),
-        spacingAfter: DocValues.s3,
+        spacingAfter: DocValues.s35,
       );
 
   factory MarkdownBlock.paragraph(String text) => MarkdownBlock._(
@@ -78,7 +78,7 @@ class MarkdownBlock {
       MarkdownBlock._(type: MarkdownBlockType.blockquote, text: text);
 
   factory MarkdownBlock.rule() =>
-      MarkdownBlock._(type: MarkdownBlockType.rule, spacingAfter: DocValues.s3);
+      MarkdownBlock._(type: MarkdownBlockType.rule, spacingAfter: DocValues.s4);
 
   factory MarkdownBlock.image(String alt, String src) =>
       MarkdownBlock._(type: MarkdownBlockType.image, text: alt, lang: src);

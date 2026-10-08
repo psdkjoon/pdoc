@@ -83,6 +83,9 @@ jobs:
       - name: Build split-per-ABI release APKs
         run: flutter build apk --release --split-per-abi --split-debug-info=build/symbols
 
+      - name: Build universal release APK
+        run: flutter build apk --release --split-debug-info=build/symbols
+
       - name: Strip, zipalign & sign
         run: ./scripts/strip.sh
         env:
@@ -96,8 +99,8 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: android-signed-apks
-          path: build/app/outputs/flutter-apk/*-stripped-signed.apk
+          name: android-apks
+          path: build/app/outputs/flutter-apk/pdoc-*.apk
           if-no-files-found: error
 
       - uses: actions/upload-artifact@v4
@@ -227,5 +230,5 @@ jobs:
           make_latest: true
           fail_on_unmatched_files: true
           files: |
-            artifacts/android-signed-apks/*.apk
+            artifacts/android-apks/*.apk
             artifacts/linux-appimage/*.AppImage

@@ -8,8 +8,10 @@ imagemagick) and docs for packages I've written (`pdata`, `penv`, `ptgb`,
 
 - **Web**: [doc.psdkjoon.ir](https://doc.psdkjoon.ir) or
   [doc.psdk.space](https://doc.psdk.space)
-- **Android**: grab the APK from
-  [Releases](https://github.com/psdkjoon/pdoc/releases)
+- **Android**: grab an APK from
+  [Releases](https://github.com/psdkjoon/pdoc/releases):
+  `pdoc-universal.apk` works everywhere; `pdoc-arm64-v8a.apk`,
+  `pdoc-armeabi-v7a.apk` and `pdoc-x86_64.apk` are smaller per-ABI builds
 - **Linux**: grab the AppImage from
   [Releases](https://github.com/psdkjoon/pdoc/releases)
 

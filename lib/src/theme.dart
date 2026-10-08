@@ -104,6 +104,8 @@ class DocValues {
   static const rMd = 12.0;
   static const md = 15.0;
   static const lg = 20.0;
+  static const rXl = 24.0;
+  static const rCode = 18.0;
   static const pill = 999.0;
 
   static const borderThin = 1.0;
@@ -243,6 +245,11 @@ class DocValues {
 
   static const firstIndex = 0;
 
+  static const reveal = Duration(milliseconds: 520);
+  static const stagger = Duration(milliseconds: 55);
+  static const pageIn = Duration(milliseconds: 380);
+  static const curveOut = Curves.easeOutCubic;
+  static const curveSpring = Curves.easeOutBack;
   static const fast = Duration(milliseconds: 150);
   static const med = Duration(milliseconds: 300);
   static const slow = Duration(milliseconds: 400);
@@ -258,6 +265,180 @@ class DocValues {
   static const brandName = 'psdkjoon Docs';
   static const authorName = 'Hossein';
   static const iconAsset = 'assets/images/icon-192.webp';
+}
+
+/// Colors for syntax highlighting. Kept separate from [ColorScheme] so every
+/// token kind gets its own hue (comments in particular no longer share a
+/// color with plain text or borders).
+@immutable
+class SyntaxColors extends ThemeExtension<SyntaxColors> {
+  final Color plain;
+  final Color keyword;
+  final Color string;
+  final Color escape;
+  final Color interpolation;
+  final Color comment;
+  final Color docComment;
+  final Color number;
+  final Color type;
+  final Color function;
+  final Color annotation;
+  final Color op;
+  final Color punctuation;
+  final Color property;
+  final Color constant;
+  final Color variable;
+  final Color flag;
+  final Color lineNumber;
+  final Color selection;
+
+  const SyntaxColors({
+    required this.plain,
+    required this.keyword,
+    required this.string,
+    required this.escape,
+    required this.interpolation,
+    required this.comment,
+    required this.docComment,
+    required this.number,
+    required this.type,
+    required this.function,
+    required this.annotation,
+    required this.op,
+    required this.punctuation,
+    required this.property,
+    required this.constant,
+    required this.variable,
+    required this.flag,
+    required this.lineNumber,
+    required this.selection,
+  });
+
+  static const dark = SyntaxColors(
+    plain: Color(0xFFE9DFC8),
+    keyword: Color(0xFFE5789A),
+    string: Color(0xFFA3CC7A),
+    escape: Color(0xFF4EC9D4),
+    interpolation: Color(0xFFF2B5A0),
+    comment: Color(0xFF74839A),
+    docComment: Color(0xFF86A9A0),
+    number: Color(0xFFF4A261),
+    type: Color(0xFF6CB6F0),
+    function: Color(0xFFE9C46A),
+    annotation: Color(0xFFB49AF0),
+    op: Color(0xFFD4B896),
+    punctuation: Color(0xFF9A8C70),
+    property: Color(0xFF8BD3C0),
+    constant: Color(0xFFD58FE8),
+    variable: Color(0xFFFFA8A8),
+    flag: Color(0xFF9ED0FF),
+    lineNumber: Color(0xFF5C5138),
+    selection: Color(0x33D4A857),
+  );
+
+  static const light = SyntaxColors(
+    plain: Color(0xFF2B2417),
+    keyword: Color(0xFFB3365A),
+    string: Color(0xFF4C7A1E),
+    escape: Color(0xFF0C7F8C),
+    interpolation: Color(0xFFB5532F),
+    comment: Color(0xFF5F728C),
+    docComment: Color(0xFF4E7F70),
+    number: Color(0xFFB65A0F),
+    type: Color(0xFF1F6FB5),
+    function: Color(0xFF8F6A00),
+    annotation: Color(0xFF6B4CC4),
+    op: Color(0xFF7A5C36),
+    punctuation: Color(0xFF8A7650),
+    property: Color(0xFF1B8068),
+    constant: Color(0xFFA2349F),
+    variable: Color(0xFFB8403C),
+    flag: Color(0xFF2C73B8),
+    lineNumber: Color(0xFFB09C74),
+    selection: Color(0x339C6B2E),
+  );
+
+  @override
+  SyntaxColors copyWith({
+    Color? plain,
+    Color? keyword,
+    Color? string,
+    Color? escape,
+    Color? interpolation,
+    Color? comment,
+    Color? docComment,
+    Color? number,
+    Color? type,
+    Color? function,
+    Color? annotation,
+    Color? op,
+    Color? punctuation,
+    Color? property,
+    Color? constant,
+    Color? variable,
+    Color? flag,
+    Color? lineNumber,
+    Color? selection,
+  }) {
+    return SyntaxColors(
+      plain: plain ?? this.plain,
+      keyword: keyword ?? this.keyword,
+      string: string ?? this.string,
+      escape: escape ?? this.escape,
+      interpolation: interpolation ?? this.interpolation,
+      comment: comment ?? this.comment,
+      docComment: docComment ?? this.docComment,
+      number: number ?? this.number,
+      type: type ?? this.type,
+      function: function ?? this.function,
+      annotation: annotation ?? this.annotation,
+      op: op ?? this.op,
+      punctuation: punctuation ?? this.punctuation,
+      property: property ?? this.property,
+      constant: constant ?? this.constant,
+      variable: variable ?? this.variable,
+      flag: flag ?? this.flag,
+      lineNumber: lineNumber ?? this.lineNumber,
+      selection: selection ?? this.selection,
+    );
+  }
+
+  @override
+  SyntaxColors lerp(ThemeExtension<SyntaxColors>? other, double t) {
+    if (other is! SyntaxColors) return this;
+    Color mix(Color a, Color b) => Color.lerp(a, b, t)!;
+    return SyntaxColors(
+      plain: mix(plain, other.plain),
+      keyword: mix(keyword, other.keyword),
+      string: mix(string, other.string),
+      escape: mix(escape, other.escape),
+      interpolation: mix(interpolation, other.interpolation),
+      comment: mix(comment, other.comment),
+      docComment: mix(docComment, other.docComment),
+      number: mix(number, other.number),
+      type: mix(type, other.type),
+      function: mix(function, other.function),
+      annotation: mix(annotation, other.annotation),
+      op: mix(op, other.op),
+      punctuation: mix(punctuation, other.punctuation),
+      property: mix(property, other.property),
+      constant: mix(constant, other.constant),
+      variable: mix(variable, other.variable),
+      flag: mix(flag, other.flag),
+      lineNumber: mix(lineNumber, other.lineNumber),
+      selection: mix(selection, other.selection),
+    );
+  }
+}
+
+extension DocThemeX on BuildContext {
+  /// The raw palette (code background, etc.) for the active brightness.
+  DocValues get docColors => Theme.of(this).brightness == Brightness.dark
+      ? DocValues.dark
+      : DocValues.light;
+
+  SyntaxColors get syntax =>
+      Theme.of(this).extension<SyntaxColors>() ?? SyntaxColors.dark;
 }
 
 ColorScheme _buildScheme(Brightness brightness, DocValues c) {
@@ -311,9 +492,14 @@ TextStyle _style({
   );
 }
 
-ThemeData _buildTheme(Brightness brightness, DocValues c) {
+ThemeData _buildTheme(
+  Brightness brightness,
+  DocValues c,
+  SyntaxColors syntax,
+) {
   return ThemeData(
     brightness: brightness,
+    extensions: [syntax],
     colorScheme: _buildScheme(brightness, c),
     scaffoldBackgroundColor: c.bg,
     fontFamily: DocValues.sans,
@@ -411,5 +597,13 @@ ThemeData _buildTheme(Brightness brightness, DocValues c) {
   );
 }
 
-final ThemeData lightTheme = _buildTheme(Brightness.light, DocValues.light);
-final ThemeData darkTheme = _buildTheme(Brightness.dark, DocValues.dark);
+final ThemeData lightTheme = _buildTheme(
+  Brightness.light,
+  DocValues.light,
+  SyntaxColors.light,
+);
+final ThemeData darkTheme = _buildTheme(
+  Brightness.dark,
+  DocValues.dark,
+  SyntaxColors.dark,
+);

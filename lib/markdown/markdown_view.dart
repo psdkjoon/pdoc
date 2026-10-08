@@ -9,6 +9,7 @@ import 'package:pdoc/markdown/markdown_link_card.dart';
 import 'package:pdoc/markdown/markdown_list_block.dart';
 import 'package:pdoc/markdown/markdown_table_block.dart';
 import 'package:pdoc/src/theme.dart';
+import 'package:pdoc/widgets/reveal.dart';
 
 class MarkdownView extends StatelessWidget {
   static const double baseFontSize = DocValues.readerBase;
@@ -39,22 +40,57 @@ class MarkdownView extends StatelessWidget {
         );
       case MarkdownBlockType.h2:
         return Padding(
-          padding: const EdgeInsets.only(top: DocValues.s2),
-          child: MarkdownInlineText(
-            spans: block.inlineSpans!,
-            baseStyle: textTheme.headlineSmall!.copyWith(
-              fontSize: textTheme.headlineSmall!.fontSize! * scale,
-            ),
-            onLinkTap: onLinkTap,
+          padding: const EdgeInsets.only(top: DocValues.s28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              MarkdownInlineText(
+                spans: block.inlineSpans!,
+                baseStyle: textTheme.headlineSmall!.copyWith(
+                  fontSize: textTheme.headlineSmall!.fontSize! * scale,
+                ),
+                onLinkTap: onLinkTap,
+              ),
+              const SizedBox(height: DocValues.s25),
+              Container(
+                width: DocValues.s6,
+                height: DocValues.sPx3,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(DocValues.pill),
+                ),
+              ),
+            ],
           ),
         );
       case MarkdownBlockType.h3:
-        return MarkdownInlineText(
-          spans: block.inlineSpans!,
-          baseStyle: textTheme.titleMedium!.copyWith(
-            fontSize: textTheme.titleMedium!.fontSize! * scale,
-          ),
-          onLinkTap: onLinkTap,
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                top: DocValues.fsTitleSm * scale * 0.38,
+                right: DocValues.s25,
+              ),
+              child: Container(
+                width: DocValues.s1,
+                height: DocValues.fsTitleSm * scale * 0.7,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(DocValues.pill),
+                ),
+              ),
+            ),
+            Expanded(
+              child: MarkdownInlineText(
+                spans: block.inlineSpans!,
+                baseStyle: textTheme.titleMedium!.copyWith(
+                  fontSize: textTheme.titleMedium!.fontSize! * scale,
+                ),
+                onLinkTap: onLinkTap,
+              ),
+            ),
+          ],
         );
       case MarkdownBlockType.paragraph:
         return MarkdownInlineText(
@@ -87,10 +123,19 @@ class MarkdownView extends StatelessWidget {
           fontSize: bodyFontSize,
         );
       case MarkdownBlockType.rule:
-        return Divider(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          thickness: DocValues.borderThin,
-          height: DocValues.borderThin,
+        final primary = Theme.of(context).colorScheme.primary;
+        return Container(
+          height: DocValues.sPx2,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(DocValues.pill),
+            gradient: LinearGradient(
+              colors: [
+                primary.withValues(alpha: 0.0),
+                primary.withValues(alpha: 0.55),
+                primary.withValues(alpha: 0.0),
+              ],
+            ),
+          ),
         );
       case MarkdownBlockType.image:
         return MarkdownImageBlock(alt: block.text, src: block.lang ?? '');
@@ -109,12 +154,17 @@ class MarkdownView extends StatelessWidget {
   Widget build(BuildContext context) {
     final blocks = MarkdownBlockParser.parse(source);
     final scale = bodyFontSize / baseFontSize;
+    final pageKey = source.hashCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final block in blocks) ...[
-          _buildBlock(context, block, scale),
-          SizedBox(height: block.spacingAfter),
+        for (var i = 0; i < blocks.length; i++) ...[
+          Reveal(
+            key: ValueKey<String>('$pageKey-$i'),
+            delay: staggerDelay(i),
+            child: _buildBlock(context, blocks[i], scale),
+          ),
+          SizedBox(height: blocks[i].spacingAfter),
         ],
       ],
     );

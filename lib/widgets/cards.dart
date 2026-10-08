@@ -3,6 +3,7 @@ import 'package:pdoc/logic/docs_controller.dart';
 import 'package:pdoc/logic/searchbar_controller.dart';
 import 'package:pdoc/src/theme.dart';
 import 'package:pdoc/widgets/fit_text.dart';
+import 'package:pdoc/widgets/reveal.dart';
 
 class DocsCards extends StatelessWidget {
   final Docs docs;
@@ -64,7 +65,12 @@ class DocsCards extends StatelessWidget {
                   itemCount: filtered.length,
                   itemBuilder: (context, index) {
                     final doc = filtered[index];
-                    return DocCard(doc: doc, onTap: () => onOpen(doc));
+                    return Reveal(
+                      key: ValueKey<String>(doc['title'] as String),
+                      delay: staggerDelay(index),
+                      dy: 18,
+                      child: DocCard(doc: doc, onTap: () => onOpen(doc)),
+                    );
                   },
                 ),
               );
@@ -114,14 +120,14 @@ class _DocCardState extends State<DocCard> {
               _entered ? DocValues.hoverLift : DocValues.s0,
               DocValues.s0,
             ),
-            padding: const EdgeInsets.all(DocValues.s3),
+            padding: const EdgeInsets.all(DocValues.s35),
             decoration: BoxDecoration(
               color: scheme.surfaceContainer,
               border: Border.all(
                 color: _entered ? scheme.primary : scheme.outline,
                 width: DocValues.borderMed,
               ),
-              borderRadius: BorderRadius.circular(DocValues.rMd),
+              borderRadius: BorderRadius.circular(DocValues.rCode),
               boxShadow: _entered
                   ? [
                       BoxShadow(

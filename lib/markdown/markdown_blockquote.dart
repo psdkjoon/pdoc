@@ -18,29 +18,64 @@ class MarkdownBlockQuote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final radius = BorderRadius.circular(DocValues.rCode);
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(DocValues.s3),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        border: Border.all(color: scheme.outlineVariant),
-        borderRadius: BorderRadius.circular(DocValues.lg),
-      ),
-      child: Container(
-        padding: const EdgeInsets.only(left: DocValues.s3),
-        decoration: BoxDecoration(
-          border: Border(
-            left: BorderSide(color: scheme.primary, width: DocValues.quoteBar),
-          ),
+        borderRadius: radius,
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            scheme.primary.withValues(alpha: 0.14),
+            scheme.primary.withValues(alpha: 0.03),
+          ],
         ),
-        child: MarkdownInlineText(
-          spans: MarkdownInlineParser.parse(text),
-          baseStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            fontSize: fontSize,
-            fontStyle: FontStyle.italic,
-            color: scheme.onSurfaceVariant,
-          ),
-          onLinkTap: onLinkTap,
+        border: Border.all(color: scheme.primary.withValues(alpha: 0.22)),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: DocValues.sPx3 + 1, color: scheme.primary),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: DocValues.s4,
+                  vertical: DocValues.s35,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: DocValues.s1,
+                        right: DocValues.s28,
+                      ),
+                      child: Icon(
+                        Icons.format_quote_rounded,
+                        size: fontSize * 1.3,
+                        color: scheme.primary.withValues(alpha: 0.8),
+                      ),
+                    ),
+                    Expanded(
+                      child: MarkdownInlineText(
+                        spans: MarkdownInlineParser.parse(text),
+                        baseStyle: Theme.of(context).textTheme.bodyLarge!
+                            .copyWith(
+                              fontSize: fontSize,
+                              fontStyle: FontStyle.italic,
+                              color: scheme.onSurface.withValues(alpha: 0.85),
+                            ),
+                        onLinkTap: onLinkTap,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

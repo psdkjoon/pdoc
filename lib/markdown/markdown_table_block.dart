@@ -23,11 +23,14 @@ class MarkdownTableBlock extends StatelessWidget {
 
   Widget _cell(String text, TextStyle style) {
     return Padding(
-      padding: const EdgeInsets.all(DocValues.s3),
+      padding: const EdgeInsets.symmetric(
+        horizontal: DocValues.s35,
+        vertical: DocValues.s28,
+      ),
       child: MarkdownInlineText(
         spans: MarkdownInlineParser.parse(text),
         baseStyle: style,
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.start,
         onLinkTap: onLinkTap,
       ),
     );
@@ -46,7 +49,8 @@ class MarkdownTableBlock extends StatelessWidget {
         .copyWith(fontSize: fontSize);
     final headingStyle = bodyStyle.copyWith(
       fontWeight: DocValues.fwBold,
-      color: scheme.onSurface,
+      color: scheme.primary,
+      letterSpacing: DocValues.lsTight,
     );
 
     return LayoutBuilder(
@@ -55,32 +59,47 @@ class MarkdownTableBlock extends StatelessWidget {
         final scrolls = constraints.maxWidth < minWidth;
         final tableWidth = scrolls ? minWidth : constraints.maxWidth;
 
+        final radius = BorderRadius.circular(DocValues.rCode);
         final table = Container(
           width: tableWidth,
           decoration: BoxDecoration(
             border: Border.all(color: scheme.outlineVariant),
-            borderRadius: BorderRadius.circular(DocValues.lg),
+            borderRadius: radius,
+            boxShadow: [
+              BoxShadow(
+                color: DocValues.shadowColor.withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: const Offset(DocValues.s0, DocValues.s1),
+              ),
+            ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(DocValues.lg),
+            borderRadius: radius,
             child: Table(
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
               defaultColumnWidth: const FlexColumnWidth(),
               border: TableBorder(
                 horizontalInside: BorderSide(color: scheme.outlineVariant),
-                verticalInside: BorderSide(color: scheme.outlineVariant),
               ),
               children: [
                 TableRow(
-                  decoration: BoxDecoration(color: scheme.surfaceContainerHigh),
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withValues(alpha: 0.12),
+                  ),
                   children: [
                     for (final cell in header) _cell(cell, headingStyle),
                   ],
                 ),
-                for (final row in body)
+                for (var i = 0; i < body.length; i++)
                   TableRow(
-                    decoration: BoxDecoration(color: scheme.surfaceContainer),
-                    children: [for (final cell in row) _cell(cell, bodyStyle)],
+                    decoration: BoxDecoration(
+                      color: i.isEven
+                          ? scheme.surfaceContainer
+                          : scheme.surfaceContainerHigh.withValues(alpha: 0.6),
+                    ),
+                    children: [
+                      for (final cell in body[i]) _cell(cell, bodyStyle),
+                    ],
                   ),
               ],
             ),

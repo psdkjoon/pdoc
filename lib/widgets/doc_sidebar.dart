@@ -95,7 +95,7 @@ class _DocSidebarState extends State<DocSidebar> {
                       color: entered ? scheme.primary : scheme.outline,
                       width: DocValues.borderMed,
                     ),
-                    borderRadius: BorderRadius.circular(DocValues.rMd),
+                    borderRadius: BorderRadius.circular(DocValues.rCode),
                     boxShadow: entered
                         ? [
                             BoxShadow(
@@ -169,7 +169,7 @@ class _SidebarSection extends StatelessWidget {
                           color: active
                               ? scheme.surfaceContainerHigh
                               : DocValues.transparent,
-                          borderRadius: BorderRadius.circular(DocValues.sm),
+                          borderRadius: BorderRadius.circular(DocValues.rMd),
                           border: Border(
                             left: BorderSide(
                               color: active
@@ -266,7 +266,7 @@ class _SidebarNavItem extends StatelessWidget {
               color: selected
                   ? scheme.surfaceContainerHigh
                   : DocValues.transparent,
-              borderRadius: BorderRadius.circular(DocValues.sm),
+              borderRadius: BorderRadius.circular(DocValues.rMd),
               border: Border(
                 left: BorderSide(
                   color: selected ? scheme.primary : DocValues.transparent,

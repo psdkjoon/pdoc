@@ -10,6 +10,8 @@ import 'package:pdoc/widgets/bread_crumbs.dart';
 import 'package:pdoc/widgets/doc_prev_next_nav.dart';
 import 'package:pdoc/widgets/fit_text.dart';
 import 'package:pdoc/widgets/link_confirm_dialog.dart';
+import 'package:pdoc/widgets/page_transition.dart';
+import 'package:pdoc/widgets/reveal.dart';
 
 class MarkdownScrollView extends StatelessWidget {
   final ScrollController controller;
@@ -34,8 +36,8 @@ class MarkdownScrollView extends StatelessWidget {
   void _openInNewDoc(BuildContext context, ResolvedDocLink resolved) {
     final sections = docSections(resolved.doc, resolved.version);
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) => DocPage(
+      docRoute<void>(
+        (context) => DocPage(
           args: DocPageArgs(
             doc: resolved.doc,
             projectTitle: resolved.doc['title'] as String,
@@ -111,7 +113,12 @@ class MarkdownScrollView extends StatelessWidget {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(
+                              Reveal(
+                                key: ValueKey<String>(
+                                  'title-$currentSection-$currentPage',
+                                ),
+                                dy: 10,
+                                child: SizedBox(
                                 width: double.infinity,
                                 child: WrapText(
                                   currentPage,
@@ -122,6 +129,7 @@ class MarkdownScrollView extends StatelessWidget {
                                     color: scheme.onSurface,
                                   ),
                                 ),
+                              ),
                               ),
                               const SizedBox(height: DocValues.s4),
                               MarkdownView(
